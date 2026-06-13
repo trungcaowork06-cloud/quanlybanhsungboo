@@ -106,7 +106,6 @@
             background: #fff5e6; border-radius: 28px; padding: 8px 12px; margin: 8px 0;
             display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; font-size: 0.85rem;
         }
-        /* Cải thiện bảng lịch sử thuê - responsive */
         .rentals-table-wrapper {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
@@ -119,7 +118,7 @@
             border-collapse: collapse;
             background: #fffef7;
             border-radius: 32px;
-            min-width: 800px; /* Đảm bảo bảng không bị bóp quá nhỏ, mobile sẽ cuộn */
+            min-width: 800px;
         }
         .table-rentals th, .table-rentals td {
             padding: 12px 10px;
@@ -181,12 +180,38 @@
             .dashboard-stats { flex-direction: column; }
             .small-btn { padding: 6px 10px; font-size: 0.7rem; }
         }
-        footer { text-align: center; margin-top: 40px; padding: 16px; font-size: 0.8rem; color: #b97f10; }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 16px;
+            font-size: 0.8rem;
+            color: #b97f10;
+            clear: both;
+        }
         .delete-icon { cursor: pointer; color: #dc6b4a; }
         .badge-total { font-weight: bold; color: #e67e22; }
         .social-link { color: #3b5998; text-decoration: none; }
         .social-link:hover { text-decoration: underline; }
         .text-center { text-align: center; }
+        .top-customers-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .top-customers-table th, .top-customers-table td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #ffcd94;
+            text-align: left;
+        }
+        .top-customers-table th {
+            background: #ffe6b3;
+            color: #a35100;
+        }
+        @media (max-width: 780px) {
+            .top-customers-table th, .top-customers-table td {
+                padding: 8px 6px;
+                font-size: 0.75rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -429,23 +454,33 @@
         const stats = getStats();
         const most = getMostRentedCamera();
         const topCustomers = getTopCustomers(5);
-        let topCustomersHtml = `<div class="cartoon-card" style="padding:20px; margin-top:20px;">
-            <h3><i class="fas fa-users"></i> 🏆 Top khách hàng thuê nhiều nhất</h3>
-            <div style="overflow-x:auto;">
-                <table style="width:100%; border-collapse:collapse;">
-                    <thead><tr><th>#</th><th>Tên khách hàng</th><th>Số lần thuê</th><th>Tổng chi tiêu</th><th>Liên kết</th></tr></thead>
-                    <tbody>`;
-        if (topCustomers.length === 0) topCustomersHtml += `<tr><td colspan="5" style="text-align:center">✨ Chưa có dữ liệu khách hàng</td></tr>`;
-        topCustomers.forEach((cust, idx) => {
-            topCustomersHtml += `<tr style="border-bottom:1px solid #ffcd94;">
-                <td style="padding:8px;">${idx+1}</td>
-                <td style="padding:8px;">${escapeHtml(cust.name)}</td>
-                <td style="padding:8px;">${cust.count}</td>
-                <td style="padding:8px;">${formatVND(cust.totalSpent)}</td>
-                <td style="padding:8px;">${cust.social ? `<a href="${escapeHtml(cust.social)}" target="_blank" class="social-link"><i class="fab fa-instagram"></i> <i class="fab fa-facebook"></i></a>` : '—'}</td>
-              </tr>`;
-        });
-        topCustomersHtml += `</tbody> Competence</div></div>`;
+        
+        let topCustomersHtml = '';
+        if (topCustomers.length === 0) {
+            topCustomersHtml = `<div class="cartoon-card" style="padding:20px; margin-top:20px;">
+                <h3><i class="fas fa-users"></i> 🏆 Top khách hàng thuê nhiều nhất</h3>
+                <div class="text-center" style="padding:20px;">✨ Chưa có dữ liệu khách hàng</div>
+            </div>`;
+        } else {
+            topCustomersHtml = `<div class="cartoon-card" style="padding:20px; margin-top:20px;">
+                <h3><i class="fas fa-users"></i> 🏆 Top khách hàng thuê nhiều nhất</h3>
+                <div style="overflow-x:auto;">
+                    <table class="top-customers-table">
+                        <thead>
+                            <tr><th>#</th><th>Tên khách hàng</th><th>Số lần thuê</th><th>Tổng chi tiêu</th><th>Liên kết</th></tr>
+                        </thead>
+                        <tbody>`;
+            topCustomers.forEach((cust, idx) => {
+                topCustomersHtml += `<tr>
+                    <td>${idx+1}</td>
+                    <td>${escapeHtml(cust.name)}</td>
+                    <td>${cust.count}</td>
+                    <td>${formatVND(cust.totalSpent)}</td>
+                    <td>${cust.social ? `<a href="${escapeHtml(cust.social)}" target="_blank" class="social-link"><i class="fab fa-instagram"></i> <i class="fab fa-facebook"></i></a>` : '—'}</td>
+                </tr>`;
+            });
+            topCustomersHtml += `</tbody>${'</table>'}</div></div>`;
+        }
         
         const html = `
             <div class="cartoon-card" style="padding:24px; margin-bottom:24px;"><h1><i class="fas fa-chalkboard-user"></i> ${escapeHtml(appSettings.headerText)}</h1></div>
@@ -460,6 +495,7 @@
             <footer>${escapeHtml(appSettings.footerText)}</footer>
         `;
         document.getElementById('mainContent').innerHTML = html;
+        
         const revMap = new Map();
         rentals.forEach(r => {
             const camName = r.cameraName || getCameraName(r.cameraId) || "Máy ảnh";
@@ -560,18 +596,15 @@
         });
     }
 
-    // CẢI THIỆN BẢNG LỊCH SỬ - responsive với wrapper cuộn ngang
     function renderAllRentals() {
         let html = `<div class="cartoon-card" style="padding:20px;"><h2>📋 Toàn bộ lịch sử cho thuê (kèm khách hàng)</h2></div>
         <div class="rentals-table-wrapper">
             <table class="table-rentals">
                 <thead>
-                    <tr>
-                        <th>Khách hàng</th><th>Social</th><th>Máy ảnh</th><th>Thời gian thuê</th><th>Số giờ</th><th>Giá thuê</th><th>Pin</th><th>Hỏng</th><th>Ship</th><th>Tráng phim</th><th>Tổng</th><th>Xoá</th>
-                    </tr>
+                    <tr><th>Khách hàng</th><th>Social</th><th>Máy ảnh</th><th>Thời gian thuê</th><th>Số giờ</th><th>Giá thuê</th><th>Pin</th><th>Hỏng</th><th>Ship</th><th>Tráng phim</th><th>Tổng</th><th>Xoá</th></tr>
                 </thead>
                 <tbody>`;
-        if (rentals.length === 0) html += `<tr><td colspan="12" class="text-center">🎈 Chưa có lịch thuê nào</td></tr>`;
+        if (rentals.length === 0) html += `<td><td colspan="12" class="text-center">🎈 Chưa có lịch thuê nào</td></tr>`;
         [...rentals].sort((a,b)=>new Date(b.startTime)-new Date(a.startTime)).forEach(r => {
             const displayCameraName = r.cameraName || getCameraName(r.cameraId) || "Máy ảnh";
             html += `<tr>
