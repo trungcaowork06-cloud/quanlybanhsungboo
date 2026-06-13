@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
     <title>Banhsungboo - Quản lý cho thuê máy ảnh</title>
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -106,21 +106,44 @@
             background: #fff5e6; border-radius: 28px; padding: 8px 12px; margin: 8px 0;
             display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; font-size: 0.85rem;
         }
+        /* Cải thiện bảng lịch sử thuê - responsive */
+        .rentals-table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 20px 0;
+            border-radius: 32px;
+            background: #fffef7;
+        }
         .table-rentals {
             width: 100%;
             border-collapse: collapse;
             background: #fffef7;
             border-radius: 32px;
-            overflow-x: auto;
-            display: block;
+            min-width: 800px; /* Đảm bảo bảng không bị bóp quá nhỏ, mobile sẽ cuộn */
         }
         .table-rentals th, .table-rentals td {
-            padding: 12px;
+            padding: 12px 10px;
             border-bottom: 2px solid #ffe0b5;
             text-align: left;
             white-space: nowrap;
         }
-        .table-rentals tbody, .table-rentals thead { display: table; width: 100%; }
+        .table-rentals th {
+            background: #ffecb3;
+            font-weight: bold;
+            color: #a35100;
+        }
+        @media (max-width: 780px) {
+            .table-rentals th, .table-rentals td {
+                padding: 8px 8px;
+                font-size: 0.75rem;
+                white-space: nowrap;
+            }
+            .rentals-table-wrapper {
+                margin: 12px -8px;
+                border-radius: 24px;
+            }
+            .small-btn { padding: 6px 10px; font-size: 0.7rem; min-height: 36px; }
+        }
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;
@@ -156,14 +179,14 @@
             .menu-item i { font-size: 1.5rem; width: auto; }
             .main-content { padding: 20px 16px 90px 16px; }
             .dashboard-stats { flex-direction: column; }
-            .small-btn { padding: 8px 12px; font-size: 0.85rem; }
-            .table-rentals th, .table-rentals td { white-space: normal; word-break: break-word; }
+            .small-btn { padding: 6px 10px; font-size: 0.7rem; }
         }
         footer { text-align: center; margin-top: 40px; padding: 16px; font-size: 0.8rem; color: #b97f10; }
         .delete-icon { cursor: pointer; color: #dc6b4a; }
         .badge-total { font-weight: bold; color: #e67e22; }
         .social-link { color: #3b5998; text-decoration: none; }
         .social-link:hover { text-decoration: underline; }
+        .text-center { text-align: center; }
     </style>
 </head>
 <body>
@@ -178,24 +201,20 @@
     <div class="main-content" id="mainContent"></div>
 </div>
 
-<!-- Modal đặt lịch thuê (có tên khách hàng + social) -->
+<!-- Modal đặt lịch thuê -->
 <div id="rentalModal" class="modal-overlay">
     <div class="modal-content">
         <h3><i class="fas fa-credit-card"></i> Đặt lịch thuê</h3>
         <p id="modalCameraName" style="font-weight:bold; margin:10px 0"></p>
         <input type="hidden" id="modalCameraId">
-        
         <label>🧑 Khách hàng *:</label>
         <input type="text" id="customerName" placeholder="Nhập tên khách hàng" required style="width:100%; margin:8px 0">
-        
         <label>📱 Instagram / Facebook (link):</label>
         <input type="url" id="customerSocial" placeholder="https://instagram.com/..." style="width:100%; margin:8px 0">
-        
         <label>⏱️ Bắt đầu:</label>
         <input type="datetime-local" id="rentalStart" style="width:100%; margin:8px 0">
         <label>⏲️ Kết thúc:</label>
         <input type="datetime-local" id="rentalEnd" style="width:100%; margin:8px 0">
-        
         <div style="margin:16px 0 8px 0; font-weight:bold;">💰 Giá thuê và chi phí phát sinh (có thể nhập số âm)</div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0;">
             <div><label>💸 Giá thuê cơ bản:</label><input type="number" id="basePrice" value="0"></div>
@@ -245,8 +264,8 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    let cameras = [];        // { id, name }
-    let rentals = [];        // mỗi rental có thêm customerName, customerSocial, cameraName (lưu tên tại thời điểm thuê)
+    let cameras = [];
+    let rentals = [];
     let appSettings = { siteTitle: "Banhsungboo Pro", headerText: "📸 Cho thuê máy ảnh - Banhsungboo", footerText: "© 2026 Banhsungboo - Thỏa sức sáng tạo" };
     let currentView = 'dashboard';
     let revenueChart = null;
@@ -270,19 +289,16 @@
         });
     }
 
-    // Thống kê cơ bản
     function getStats() {
         let totalRevenue = 0, totalHours = 0;
         rentals.forEach(r => { totalRevenue += r.totalRevenue; totalHours += r.totalHours; });
         return { totalRevenue, totalHours, totalCameras: cameras.length, totalRentals: rentals.length };
     }
     
-    // Máy được thuê nhiều nhất: ưu tiên dùng tên đã lưu trong rental (giữ nguyên tên gốc kể cả khi máy bị xóa)
     function getMostRentedCamera() {
-        const countMap = new Map(); // cameraId -> { count, nameSample }
+        const countMap = new Map();
         rentals.forEach(r => {
             if (!countMap.has(r.cameraId)) {
-                // Lấy tên từ rental (đã lưu cameraName) hoặc nếu chưa có thì lấy từ cameras hiện tại
                 let name = r.cameraName;
                 if (!name) {
                     const cam = cameras.find(c => c.id === r.cameraId);
@@ -304,9 +320,8 @@
         return { name: "Chưa có lượt thuê", count: 0 };
     }
     
-    // Top khách hàng thuê nhiều nhất (theo số lượt thuê)
     function getTopCustomers(limit = 5) {
-        const customerMap = new Map(); // key: tên khách hàng, value: { count, totalSpent, social }
+        const customerMap = new Map();
         rentals.forEach(r => {
             if (!r.customerName) return;
             const name = r.customerName;
@@ -323,7 +338,6 @@
         return sorted.slice(0, limit);
     }
 
-    // Firebase subscriptions
     function subscribeCameras() {
         const camRef = ref(db, 'cameras');
         onValue(camRef, (snap) => {
@@ -353,7 +367,6 @@
         });
     }
 
-    // CRUD
     async function addCamera(name) {
         if (!name.trim()) return false;
         const newId = generateId();
@@ -385,7 +398,7 @@
         const newId = generateId();
         const rentalData = {
             cameraId, 
-            cameraName: camera.name,  // LƯU TÊN GỐC ĐỂ DÙNG KHI MÁY BỊ XÓA
+            cameraName: camera.name,
             startTime: start.toISOString(), 
             endTime: end.toISOString(),
             totalHours: hours, 
@@ -412,7 +425,6 @@
         else if (currentView === 'settings') renderSettings();
     }
 
-    // RENDER DASHBOARD
     function renderDashboard() {
         const stats = getStats();
         const most = getMostRentedCamera();
@@ -421,9 +433,9 @@
             <h3><i class="fas fa-users"></i> 🏆 Top khách hàng thuê nhiều nhất</h3>
             <div style="overflow-x:auto;">
                 <table style="width:100%; border-collapse:collapse;">
-                    <thead><tr><th>#</th><th>Tên khách hàng</th><th>Số lần thuê</th><th>Tổng chi tiêu</th><th>Liên kết</th></thead>
+                    <thead><tr><th>#</th><th>Tên khách hàng</th><th>Số lần thuê</th><th>Tổng chi tiêu</th><th>Liên kết</th></tr></thead>
                     <tbody>`;
-        if (topCustomers.length === 0) topCustomersHtml += `<tr><td colspan="5" style="text-align:center">✨ Chưa có dữ liệu khách hàng</tr>`;
+        if (topCustomers.length === 0) topCustomersHtml += `<tr><td colspan="5" style="text-align:center">✨ Chưa có dữ liệu khách hàng</td></tr>`;
         topCustomers.forEach((cust, idx) => {
             topCustomersHtml += `<tr style="border-bottom:1px solid #ffcd94;">
                 <td style="padding:8px;">${idx+1}</td>
@@ -431,9 +443,9 @@
                 <td style="padding:8px;">${cust.count}</td>
                 <td style="padding:8px;">${formatVND(cust.totalSpent)}</td>
                 <td style="padding:8px;">${cust.social ? `<a href="${escapeHtml(cust.social)}" target="_blank" class="social-link"><i class="fab fa-instagram"></i> <i class="fab fa-facebook"></i></a>` : '—'}</td>
-             </tr>`;
+              </tr>`;
         });
-        topCustomersHtml += `</tbody></table></div></div>`;
+        topCustomersHtml += `</tbody> Competence</div></div>`;
         
         const html = `
             <div class="cartoon-card" style="padding:24px; margin-bottom:24px;"><h1><i class="fas fa-chalkboard-user"></i> ${escapeHtml(appSettings.headerText)}</h1></div>
@@ -448,7 +460,6 @@
             <footer>${escapeHtml(appSettings.footerText)}</footer>
         `;
         document.getElementById('mainContent').innerHTML = html;
-        // Vẽ biểu đồ doanh thu theo camera (dùng tên đã lưu trong rental)
         const revMap = new Map();
         rentals.forEach(r => {
             const camName = r.cameraName || getCameraName(r.cameraId) || "Máy ảnh";
@@ -468,7 +479,6 @@
         }
     }
 
-    // RENDER CAMERAS
     function renderCameras() {
         let html = `
             <div class="cartoon-card" style="padding:20px; margin-bottom:24px;">
@@ -550,14 +560,18 @@
         });
     }
 
-    // RENDER ALL RENTALS
+    // CẢI THIỆN BẢNG LỊCH SỬ - responsive với wrapper cuộn ngang
     function renderAllRentals() {
         let html = `<div class="cartoon-card" style="padding:20px;"><h2>📋 Toàn bộ lịch sử cho thuê (kèm khách hàng)</h2></div>
-        <div style="overflow-x:auto;">
-        <table class="table-rentals cartoon-card">
-            <thead><tr><th>Khách hàng</th><th>Social</th><th>Máy ảnh</th><th>Thời gian thuê</th><th>Số giờ</th><th>Giá thuê</th><th>Pin</th><th>Hỏng</th><th>Ship</th><th>Tráng phim</th><th>Tổng</th><th>Xoá</th></tr></thead>
-            <tbody>`;
-        if (rentals.length === 0) html += `<tr><td colspan="12" style="text-align:center">🎈 Chưa có lịch thuê nào</tr>`;
+        <div class="rentals-table-wrapper">
+            <table class="table-rentals">
+                <thead>
+                    <tr>
+                        <th>Khách hàng</th><th>Social</th><th>Máy ảnh</th><th>Thời gian thuê</th><th>Số giờ</th><th>Giá thuê</th><th>Pin</th><th>Hỏng</th><th>Ship</th><th>Tráng phim</th><th>Tổng</th><th>Xoá</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+        if (rentals.length === 0) html += `<tr><td colspan="12" class="text-center">🎈 Chưa có lịch thuê nào</td></tr>`;
         [...rentals].sort((a,b)=>new Date(b.startTime)-new Date(a.startTime)).forEach(r => {
             const displayCameraName = r.cameraName || getCameraName(r.cameraId) || "Máy ảnh";
             html += `<tr>
@@ -573,7 +587,7 @@
                 <td>${formatVND(r.extraFilm || 0)}</td>
                 <td><strong>${formatVND(r.totalRevenue)}</strong></td>
                 <td><button class="small-btn btn-danger deleteRentalGlobal" data-id="${r.id}"><i class="fas fa-trash"></i></button></td>
-             </tr>`;
+            </tr>`;
         });
         html += `</tbody></table></div><footer>${escapeHtml(appSettings.footerText)}</footer>`;
         document.getElementById('mainContent').innerHTML = html;
@@ -639,7 +653,6 @@
     }
 
     function initModals() {
-        // Modal đặt lịch
         const rentalModal = document.getElementById('rentalModal');
         document.getElementById('closeModalBtn').onclick = () => rentalModal.style.visibility = 'hidden';
         window.onclick = (e) => { if (e.target === rentalModal) rentalModal.style.visibility = 'hidden'; };
@@ -664,7 +677,6 @@
             if (result.success) { showToast("✅ Đặt lịch thành công!"); rentalModal.style.visibility = 'hidden'; }
             else showToast(`❌ ${result.msg}`);
         };
-        // Modal chỉnh sửa máy
         const editModal = document.getElementById('editCameraModal');
         document.getElementById('closeEditModalBtn').onclick = () => editModal.style.visibility = 'hidden';
         window.onclick = (e) => { if (e.target === editModal) editModal.style.visibility = 'hidden'; };
