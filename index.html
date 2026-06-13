@@ -109,8 +109,8 @@
             z-index: 1000; visibility: hidden; backdrop-filter: blur(4px);
         }
         .modal-content {
-            background: #fff8ec; border-radius: 56px; padding: 28px; width: 90%; max-width: 550px;
-            border: 4px solid #ffb85e; box-shadow: 20px 20px 0 #ba7a2e; max-height: 90vh; overflow-y: auto;
+            background: #fff8ec; border-radius: 56px; padding: 28px; width: 90%; max-width: 500px;
+            border: 4px solid #ffb85e; box-shadow: 20px 20px 0 #ba7a2e;
         }
         .flex-btns { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; }
         .toast-msg {
@@ -124,8 +124,7 @@
             85% { opacity: 1; }
             100% { opacity: 0; visibility: hidden;}
         }
-        .small-btn { padding: 4px 12px; font-size: 0.75rem; margin: 2px; }
-        .extra-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+        .small-btn { padding: 4px 12px; font-size: 0.75rem; margin: 2px; min-height: 44px; } /* Tăng kích thước touch mobile */
         @media (max-width: 780px) {
             .app-container { grid-template-columns: 1fr; padding-bottom: 80px; }
             .sidebar {
@@ -138,11 +137,12 @@
             .menu-item i { font-size: 1.5rem; width: auto; }
             .main-content { padding: 20px 16px 90px 16px; }
             .dashboard-stats { flex-direction: column; }
-            .extra-fields { grid-template-columns: 1fr; }
+            .small-btn { padding: 8px 12px; font-size: 0.85rem; min-width: 44px; }
         }
         footer { text-align: center; margin-top: 40px; padding: 16px; font-size: 0.8rem; color: #b97f10; }
         .delete-icon { cursor: pointer; color: #dc6b4a; }
         .badge-total { font-weight: bold; color: #e67e22; }
+        .edit-modal-input { width: 100%; margin: 20px 0; }
     </style>
 </head>
 <body>
@@ -157,6 +157,7 @@
     <div class="main-content" id="mainContent"></div>
 </div>
 
+<!-- Modal đặt lịch thuê -->
 <div id="rentalModal" class="modal-overlay">
     <div class="modal-content">
         <h3><i class="fas fa-credit-card"></i> Đặt lịch thuê & nhập giá</h3>
@@ -168,12 +169,12 @@
         <input type="datetime-local" id="rentalEnd" style="width:100%; margin:8px 0">
         
         <div style="margin:16px 0 8px 0; font-weight:bold;">💰 Giá thuê và chi phí phát sinh</div>
-        <div class="extra-fields">
-            <div><label>💸 Giá thuê cơ bản (VNĐ):</label><input type="number" id="basePrice" value="0" placeholder="0"></div>
-            <div><label>🔋 Pin dự phòng:</label><input type="number" id="extraPin" value="0" placeholder="0"></div>
-            <div><label>🔧 Hỏng máy / sửa:</label><input type="number" id="extraDamage" value="0" placeholder="0"></div>
-            <div><label>📦 Phí ship:</label><input type="number" id="extraShipping" value="0" placeholder="0"></div>
-            <div><label>🎞️ Tráng phim:</label><input type="number" id="extraFilm" value="0" placeholder="0"></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0;">
+            <div><label>💸 Giá thuê cơ bản (VNĐ):</label><input type="number" id="basePrice" value="0"></div>
+            <div><label>🔋 Pin dự phòng:</label><input type="number" id="extraPin" value="0"></div>
+            <div><label>🔧 Hỏng máy / sửa:</label><input type="number" id="extraDamage" value="0"></div>
+            <div><label>📦 Phí ship:</label><input type="number" id="extraShipping" value="0"></div>
+            <div><label>🎞️ Tráng phim:</label><input type="number" id="extraFilm" value="0"></div>
         </div>
         <div style="background:#fff0d6; border-radius:28px; padding:12px; margin-top:8px;">
             <span>🔢 Tổng doanh thu: </span><strong id="previewTotal" class="badge-total">0 VNĐ</strong>
@@ -185,9 +186,22 @@
     </div>
 </div>
 
+<!-- Modal chỉnh sửa tên máy ảnh (thay thế prompt, hoạt động tốt trên mobile) -->
+<div id="editCameraModal" class="modal-overlay">
+    <div class="modal-content">
+        <h3><i class="fas fa-edit"></i> Chỉnh sửa tên máy ảnh</h3>
+        <input type="text" id="editCameraName" class="edit-modal-input" placeholder="Nhập tên mới">
+        <input type="hidden" id="editCameraId">
+        <div class="flex-btns">
+            <button id="saveEditCameraBtn" class="cute-btn btn-success"><i class="fas fa-save"></i> Lưu</button>
+            <button id="closeEditModalBtn" class="cute-btn"><i class="fas fa-times"></i> Hủy</button>
+        </div>
+    </div>
+</div>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
+    import { getDatabase, ref, set, onValue, remove, update } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCUuq5cyAy_g7E0Lk2OPSPGxrd9P7umD9s",
@@ -203,14 +217,12 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Dữ liệu
     let cameras = [];        // { id, name }
     let rentals = [];        // { id, cameraId, startTime, endTime, totalHours, basePrice, extraPin, extraDamage, extraShipping, extraFilm, totalRevenue }
     let appSettings = { siteTitle: "CamRental Flex", headerText: "📸 Cho thuê máy ảnh - Linh hoạt giá", footerText: "© 2026 CamRental - Thỏa sức sáng tạo" };
     let currentView = 'dashboard';
     let revenueChart = null;
 
-    // Helper
     function generateId() { return Date.now() + '-' + Math.random().toString(36).substr(2, 8); }
     function formatVND(amount) { return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount); }
     function formatDate(iso) { const d = new Date(iso); return `${d.getDate()}/${d.getMonth()+1} ${d.getHours()}:${d.getMinutes().toString().padStart(2,'0')}`; }
@@ -218,7 +230,6 @@
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':'&gt;'); }
     function getCameraName(cameraId) { const cam = cameras.find(c => c.id === cameraId); return cam ? cam.name : "🔘 [Máy đã xóa]"; }
 
-    // Kiểm tra trùng lịch
     function isOverlap(cameraId, startISO, endISO, excludeId = null) {
         const newStart = new Date(startISO).getTime();
         const newEnd = new Date(endISO).getTime();
@@ -231,7 +242,6 @@
         });
     }
 
-    // Thống kê
     function getStats() {
         let totalRevenue = 0, totalHours = 0;
         rentals.forEach(r => { totalRevenue += r.totalRevenue; totalHours += r.totalHours; });
@@ -246,7 +256,7 @@
         return { name: "Chưa có lượt thuê", count: 0 };
     }
 
-    // Firebase sync
+    // Firebase subscriptions
     function subscribeCameras() {
         const camRef = ref(db, 'cameras');
         onValue(camRef, (snap) => {
@@ -329,7 +339,7 @@
         else if (currentView === 'settings') renderSettings();
     }
 
-    // RENDER
+    // RENDER DASHBOARD
     function renderDashboard() {
         const stats = getStats();
         const most = getMostRentedCamera();
@@ -345,7 +355,6 @@
             <footer>${escapeHtml(appSettings.footerText)}</footer>
         `;
         document.getElementById('mainContent').innerHTML = html;
-        // Vẽ biểu đồ
         const revMap = new Map();
         rentals.forEach(r => {
             if (!revMap.has(r.cameraId)) revMap.set(r.cameraId, { name: getCameraName(r.cameraId), revenue: 0 });
@@ -364,6 +373,7 @@
         }
     }
 
+    // RENDER CAMERAS (với edit modal thay vì prompt)
     function renderCameras() {
         let html = `
             <div class="cartoon-card" style="padding:20px; margin-bottom:24px;">
@@ -405,19 +415,21 @@
         html += `</div><footer>${escapeHtml(appSettings.footerText)}</footer>`;
         document.getElementById('mainContent').innerHTML = html;
 
+        // Thêm máy
         document.getElementById('addCameraBtn')?.addEventListener('click', async () => {
             const name = document.getElementById('newCamName').value;
             if (name.trim()) { await addCamera(name); showToast(`📸 Đã thêm máy ${name}`); }
             else showToast("Vui lòng nhập tên máy!");
         });
+        // Xóa máy
         document.querySelectorAll('.deleteCamBtn').forEach(btn => {
             btn.addEventListener('click', async () => { if (await deleteCamera(btn.dataset.id)) showToast("🗑️ Đã xóa máy (giữ lịch sử)"); });
         });
+        // Nút đặt lịch
         document.querySelectorAll('.addRentBtn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.getElementById('modalCameraId').value = btn.dataset.id;
                 document.getElementById('modalCameraName').innerText = `📷 Máy: ${btn.dataset.name}`;
-                // Reset form
                 document.getElementById('rentalStart').value = '';
                 document.getElementById('rentalEnd').value = '';
                 document.getElementById('basePrice').value = '0';
@@ -429,25 +441,27 @@
                 document.getElementById('rentalModal').style.visibility = 'visible';
             });
         });
+        // Xóa lịch thuê (trong card)
         document.querySelectorAll('.deleteRentalBtn').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 e.stopPropagation();
                 if (confirm("Xóa lịch thuê này?")) { await deleteRental(btn.dataset.id); showToast("Đã xóa lịch thuê"); }
             });
         });
+        // Chỉnh sửa máy ảnh - SỬ DỤNG MODAL (thay thế prompt)
         document.querySelectorAll('.editCamBtn').forEach(btn => {
-            btn.addEventListener('click', async () => {
+            btn.addEventListener('click', () => {
                 const id = btn.dataset.id;
                 const oldName = btn.dataset.name;
-                const newName = prompt("Sửa tên máy ảnh:", oldName);
-                if (newName && newName.trim()) {
-                    await updateCamera(id, newName);
-                    showToast("✏️ Cập nhật tên máy thành công");
-                }
+                // Hiển thị modal edit
+                document.getElementById('editCameraId').value = id;
+                document.getElementById('editCameraName').value = oldName;
+                document.getElementById('editCameraModal').style.visibility = 'visible';
             });
         });
     }
 
+    // RENDER ALL RENTALS
     function renderAllRentals() {
         let html = `<div class="cartoon-card" style="padding:20px;"><h2>📋 Toàn bộ lịch sử cho thuê (kèm chi phí phát sinh)</h2></div>
         <table class="table-rentals cartoon-card">
@@ -475,11 +489,12 @@
         });
     }
 
+    // RENDER SETTINGS
     function renderSettings() {
         let html = `
             <div class="cartoon-card" style="padding:28px;">
                 <h2><i class="fas fa-sliders-h"></i> Cài đặt giao diện</h2>
-                <div class="settings-form">
+                <div>
                     <label>🏷️ Tiêu đề trang:</label>
                     <input type="text" id="setTitle" value="${escapeHtml(appSettings.siteTitle)}">
                     <label>📢 Header chính:</label>
@@ -531,36 +546,50 @@
         reRenderCurrentView();
     }
 
-    function initModal() {
-        const modal = document.getElementById('rentalModal');
-        document.getElementById('closeModalBtn').onclick = () => modal.style.visibility = 'hidden';
-        window.onclick = (e) => { if (e.target === modal) modal.style.visibility = 'hidden'; };
-        
+    // Khởi tạo các modal
+    function initModals() {
+        // Modal đặt lịch
+        const rentalModal = document.getElementById('rentalModal');
+        document.getElementById('closeModalBtn').onclick = () => rentalModal.style.visibility = 'hidden';
+        window.onclick = (e) => { if (e.target === rentalModal) rentalModal.style.visibility = 'hidden'; };
         const priceInputs = ['basePrice', 'extraPin', 'extraDamage', 'extraShipping', 'extraFilm'];
         priceInputs.forEach(id => {
             document.getElementById(id).addEventListener('input', updatePreviewTotal);
         });
-        
         document.getElementById('saveRentalBtn').onclick = async () => {
             const camId = document.getElementById('modalCameraId').value;
             const start = document.getElementById('rentalStart').value;
             const end = document.getElementById('rentalEnd').value;
-            const basePrice = parseFloat(document.getElementById('basePrice').value) || 0;
-            const extraPin = parseFloat(document.getElementById('extraPin').value) || 0;
-            const extraDamage = parseFloat(document.getElementById('extraDamage').value) || 0;
-            const extraShipping = parseFloat(document.getElementById('extraShipping').value) || 0;
-            const extraFilm = parseFloat(document.getElementById('extraFilm').value) || 0;
+            const base = parseFloat(document.getElementById('basePrice').value) || 0;
+            const pin = parseFloat(document.getElementById('extraPin').value) || 0;
+            const damage = parseFloat(document.getElementById('extraDamage').value) || 0;
+            const ship = parseFloat(document.getElementById('extraShipping').value) || 0;
+            const film = parseFloat(document.getElementById('extraFilm').value) || 0;
             if (!start || !end) { showToast("Vui lòng chọn thời gian!"); return; }
-            const result = await addRental(camId, start, end, basePrice, extraPin, extraDamage, extraShipping, extraFilm);
-            if (result.success) {
-                showToast("✅ Đặt lịch thành công!");
-                modal.style.visibility = 'hidden';
-            } else showToast(`❌ ${result.msg}`);
+            const result = await addRental(camId, start, end, base, pin, damage, ship, film);
+            if (result.success) { showToast("✅ Đặt lịch thành công!"); rentalModal.style.visibility = 'hidden'; }
+            else showToast(`❌ ${result.msg}`);
+        };
+
+        // Modal chỉnh sửa tên máy ảnh
+        const editModal = document.getElementById('editCameraModal');
+        document.getElementById('closeEditModalBtn').onclick = () => editModal.style.visibility = 'hidden';
+        window.onclick = (e) => { if (e.target === editModal) editModal.style.visibility = 'hidden'; };
+        document.getElementById('saveEditCameraBtn').onclick = async () => {
+            const id = document.getElementById('editCameraId').value;
+            const newName = document.getElementById('editCameraName').value;
+            if (newName.trim()) {
+                await updateCamera(id, newName);
+                showToast("✏️ Đã cập nhật tên máy");
+                editModal.style.visibility = 'hidden';
+            } else {
+                showToast("Tên máy không được để trống");
+            }
         };
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-        initModal();
+        initModals();
         subscribeCameras();
         subscribeRentals();
         subscribeSettings();
