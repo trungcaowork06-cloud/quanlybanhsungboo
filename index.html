@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>CamRental Pro - Quản lý cho thuê máy ảnh</title>
+    <title>Banhsungboo - Quản lý cho thuê máy ảnh</title>
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -169,7 +169,7 @@
 <body>
 <div class="app-container">
     <div class="sidebar">
-        <div class="logo-area"><h2 id="dynamicTitle"><i class="fas fa-camera-retro"></i> CamRental</h2></div>
+        <div class="logo-area"><h2 id="dynamicTitle"><i class="fas fa-camera-retro"></i> Banhsungboo</h2></div>
         <div class="menu-item" data-view="dashboard"><i class="fas fa-chart-line"></i> <span>📊 Thống kê</span></div>
         <div class="menu-item" data-view="cameras"><i class="fas fa-camera"></i> <span>📷 Máy ảnh</span></div>
         <div class="menu-item" data-view="rentals"><i class="fas fa-calendar-check"></i> <span>📅 Lịch thuê</span></div>
@@ -246,8 +246,8 @@
     const db = getDatabase(app);
 
     let cameras = [];        // { id, name }
-    let rentals = [];        // mỗi rental có thêm customerName, customerSocial
-    let appSettings = { siteTitle: "CamRental Pro", headerText: "📸 Cho thuê máy ảnh chuyên nghiệp", footerText: "© 2026 CamRental - Thỏa sức sáng tạo" };
+    let rentals = [];        // mỗi rental có thêm customerName, customerSocial, cameraName (lưu tên tại thời điểm thuê)
+    let appSettings = { siteTitle: "Banhsungboo Pro", headerText: "📸 Cho thuê máy ảnh - Banhsungboo", footerText: "© 2026 Banhsungboo - Thỏa sức sáng tạo" };
     let currentView = 'dashboard';
     let revenueChart = null;
 
@@ -256,7 +256,7 @@
     function formatDate(iso) { const d = new Date(iso); return `${d.getDate()}/${d.getMonth()+1} ${d.getHours()}:${d.getMinutes().toString().padStart(2,'0')}`; }
     function formatHours(h) { return h.toFixed(1) + " giờ"; }
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':'&gt;'); }
-    function getCameraName(cameraId) { const cam = cameras.find(c => c.id === cameraId); return cam ? cam.name : "🔘 [Máy đã xóa]"; }
+    function getCameraName(cameraId) { const cam = cameras.find(c => c.id === cameraId); return cam ? cam.name : null; }
 
     function isOverlap(cameraId, startISO, endISO, excludeId = null) {
         const newStart = new Date(startISO).getTime();
@@ -276,14 +276,34 @@
         rentals.forEach(r => { totalRevenue += r.totalRevenue; totalHours += r.totalHours; });
         return { totalRevenue, totalHours, totalCameras: cameras.length, totalRentals: rentals.length };
     }
+    
+    // Máy được thuê nhiều nhất: ưu tiên dùng tên đã lưu trong rental (giữ nguyên tên gốc kể cả khi máy bị xóa)
     function getMostRentedCamera() {
-        const countMap = new Map();
-        rentals.forEach(r => { countMap.set(r.cameraId, (countMap.get(r.cameraId)||0) + 1); });
-        let bestId = null, bestCount = 0;
-        for (let [id, cnt] of countMap) if (cnt > bestCount) { bestCount = cnt; bestId = id; }
-        if (bestId) return { name: getCameraName(bestId), count: bestCount };
+        const countMap = new Map(); // cameraId -> { count, nameSample }
+        rentals.forEach(r => {
+            if (!countMap.has(r.cameraId)) {
+                // Lấy tên từ rental (đã lưu cameraName) hoặc nếu chưa có thì lấy từ cameras hiện tại
+                let name = r.cameraName;
+                if (!name) {
+                    const cam = cameras.find(c => c.id === r.cameraId);
+                    name = cam ? cam.name : "📷 Máy ảnh";
+                }
+                countMap.set(r.cameraId, { count: 0, name });
+            }
+            countMap.get(r.cameraId).count += 1;
+        });
+        let bestId = null, bestCount = 0, bestName = "";
+        for (let [id, data] of countMap) {
+            if (data.count > bestCount) {
+                bestCount = data.count;
+                bestId = id;
+                bestName = data.name;
+            }
+        }
+        if (bestId) return { name: bestName, count: bestCount };
         return { name: "Chưa có lượt thuê", count: 0 };
     }
+    
     // Top khách hàng thuê nhiều nhất (theo số lượt thuê)
     function getTopCustomers(limit = 5) {
         const customerMap = new Map(); // key: tên khách hàng, value: { count, totalSpent, social }
@@ -362,12 +382,17 @@
         if (isOverlap(cameraId, startISO, endISO)) return { success: false, msg: "❌ Thời gian bị trùng với lịch thuê khác!" };
         const hours = (end - start) / 3600000;
         const totalRevenue = basePrice + extraPin + extraDamage + extraShipping + extraFilm;
-        // Cho phép doanh thu âm (bỏ kiểm tra totalRevenue < 0)
         const newId = generateId();
         const rentalData = {
-            cameraId, startTime: start.toISOString(), endTime: end.toISOString(),
-            totalHours: hours, basePrice, extraPin, extraDamage, extraShipping, extraFilm,
-            totalRevenue, customerName: customerName.trim(), customerSocial: customerSocial.trim() || ""
+            cameraId, 
+            cameraName: camera.name,  // LƯU TÊN GỐC ĐỂ DÙNG KHI MÁY BỊ XÓA
+            startTime: start.toISOString(), 
+            endTime: end.toISOString(),
+            totalHours: hours, 
+            basePrice, extraPin, extraDamage, extraShipping, extraFilm,
+            totalRevenue, 
+            customerName: customerName.trim(), 
+            customerSocial: customerSocial.trim() || ""
         };
         await set(ref(db, `rentals/${newId}`), rentalData);
         return { success: true };
@@ -387,7 +412,7 @@
         else if (currentView === 'settings') renderSettings();
     }
 
-    // RENDER DASHBOARD (có thêm top khách hàng)
+    // RENDER DASHBOARD
     function renderDashboard() {
         const stats = getStats();
         const most = getMostRentedCamera();
@@ -396,9 +421,9 @@
             <h3><i class="fas fa-users"></i> 🏆 Top khách hàng thuê nhiều nhất</h3>
             <div style="overflow-x:auto;">
                 <table style="width:100%; border-collapse:collapse;">
-                    <thead><tr><th>#</th><th>Tên khách hàng</th><th>Số lần thuê</th><th>Tổng chi tiêu</th><th>Liên kết</th></tr></thead>
+                    <thead><tr><th>#</th><th>Tên khách hàng</th><th>Số lần thuê</th><th>Tổng chi tiêu</th><th>Liên kết</th></thead>
                     <tbody>`;
-        if (topCustomers.length === 0) topCustomersHtml += `<tr><td colspan="5" style="text-align:center">✨ Chưa có dữ liệu khách hàng</td></tr>`;
+        if (topCustomers.length === 0) topCustomersHtml += `<tr><td colspan="5" style="text-align:center">✨ Chưa có dữ liệu khách hàng</tr>`;
         topCustomers.forEach((cust, idx) => {
             topCustomersHtml += `<tr style="border-bottom:1px solid #ffcd94;">
                 <td style="padding:8px;">${idx+1}</td>
@@ -406,7 +431,7 @@
                 <td style="padding:8px;">${cust.count}</td>
                 <td style="padding:8px;">${formatVND(cust.totalSpent)}</td>
                 <td style="padding:8px;">${cust.social ? `<a href="${escapeHtml(cust.social)}" target="_blank" class="social-link"><i class="fab fa-instagram"></i> <i class="fab fa-facebook"></i></a>` : '—'}</td>
-            </tr>`;
+             </tr>`;
         });
         topCustomersHtml += `</tbody></table></div></div>`;
         
@@ -416,21 +441,22 @@
                 <div class="stat-card"><i class="fas fa-dollar-sign fa-2x"></i><div class="stat-number">${formatVND(stats.totalRevenue)}</div><div>Tổng doanh thu</div></div>
                 <div class="stat-card"><i class="fas fa-hourglass-half fa-2x"></i><div class="stat-number">${formatHours(stats.totalHours)}</div><div>Tổng giờ thuê</div></div>
                 <div class="stat-card"><i class="fas fa-camera fa-2x"></i><div class="stat-number">${stats.totalCameras}</div><div>Máy ảnh (hiện có)</div></div>
-                <div class="stat-card"><i class="fas fa-trophy fa-2x"></i><div class="stat-number">🏆 ${escapeHtml(most.name)}</div><div>Thuê nhiều nhất (${most.count} lượt)</div></div>
+                <div class="stat-card"><i class="fas fa-trophy fa-2x"></i><div class="stat-number">🏆 ${escapeHtml(most.name)}</div><div>Được thuê nhiều nhất (${most.count} lượt)</div></div>
             </div>
-            <div class="cartoon-card" style="padding:20px;"><canvas id="revenueChart" style="max-height:300px; width:100%"></canvas><p style="text-align:center">💰 Doanh thu theo từng máy</p></div>
+            <div class="cartoon-card" style="padding:20px;"><canvas id="revenueChart" style="max-height:300px; width:100%"></canvas><p style="text-align:center">💰 Doanh thu theo từng máy (kể cả máy đã xóa)</p></div>
             ${topCustomersHtml}
             <footer>${escapeHtml(appSettings.footerText)}</footer>
         `;
         document.getElementById('mainContent').innerHTML = html;
-        // Vẽ biểu đồ
+        // Vẽ biểu đồ doanh thu theo camera (dùng tên đã lưu trong rental)
         const revMap = new Map();
         rentals.forEach(r => {
-            if (!revMap.has(r.cameraId)) revMap.set(r.cameraId, { name: getCameraName(r.cameraId), revenue: 0 });
-            revMap.get(r.cameraId).revenue += r.totalRevenue;
+            const camName = r.cameraName || getCameraName(r.cameraId) || "Máy ảnh";
+            if (!revMap.has(camName)) revMap.set(camName, 0);
+            revMap.set(camName, revMap.get(camName) + r.totalRevenue);
         });
-        const labels = Array.from(revMap.values()).map(v => v.name);
-        const data = Array.from(revMap.values()).map(v => v.revenue);
+        const labels = Array.from(revMap.keys());
+        const data = Array.from(revMap.values());
         const ctx = document.getElementById('revenueChart')?.getContext('2d');
         if (ctx) {
             if (revenueChart) revenueChart.destroy();
@@ -524,19 +550,20 @@
         });
     }
 
-    // RENDER ALL RENTALS (thêm cột khách hàng và social)
+    // RENDER ALL RENTALS
     function renderAllRentals() {
         let html = `<div class="cartoon-card" style="padding:20px;"><h2>📋 Toàn bộ lịch sử cho thuê (kèm khách hàng)</h2></div>
         <div style="overflow-x:auto;">
         <table class="table-rentals cartoon-card">
             <thead><tr><th>Khách hàng</th><th>Social</th><th>Máy ảnh</th><th>Thời gian thuê</th><th>Số giờ</th><th>Giá thuê</th><th>Pin</th><th>Hỏng</th><th>Ship</th><th>Tráng phim</th><th>Tổng</th><th>Xoá</th></tr></thead>
             <tbody>`;
-        if (rentals.length === 0) html += `<tr><td colspan="12" style="text-align:center">🎈 Chưa có lịch thuê nào</td></tr>`;
+        if (rentals.length === 0) html += `<tr><td colspan="12" style="text-align:center">🎈 Chưa có lịch thuê nào</tr>`;
         [...rentals].sort((a,b)=>new Date(b.startTime)-new Date(a.startTime)).forEach(r => {
+            const displayCameraName = r.cameraName || getCameraName(r.cameraId) || "Máy ảnh";
             html += `<tr>
                 <td><strong>${escapeHtml(r.customerName || '—')}</strong></td>
                 <td>${r.customerSocial ? `<a href="${escapeHtml(r.customerSocial)}" target="_blank" class="social-link"><i class="fab fa-instagram"></i> <i class="fab fa-facebook"></i> Link</a>` : '—'}</td>
-                <td>${escapeHtml(getCameraName(r.cameraId))}</td>
+                <td>${escapeHtml(displayCameraName)}</td>
                 <td>${formatDate(r.startTime)} → ${formatDate(r.endTime)}</td>
                 <td>${formatHours(r.totalHours)}</td>
                 <td>${formatVND(r.basePrice || 0)}</td>
@@ -546,7 +573,7 @@
                 <td>${formatVND(r.extraFilm || 0)}</td>
                 <td><strong>${formatVND(r.totalRevenue)}</strong></td>
                 <td><button class="small-btn btn-danger deleteRentalGlobal" data-id="${r.id}"><i class="fas fa-trash"></i></button></td>
-            </tr>`;
+             </tr>`;
         });
         html += `</tbody></table></div><footer>${escapeHtml(appSettings.footerText)}</footer>`;
         document.getElementById('mainContent').innerHTML = html;
