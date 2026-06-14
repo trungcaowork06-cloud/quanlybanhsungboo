@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
     <title>Banhsungboo - Quản lý cho thuê & bán film</title>
-    <!-- Google Fonts bổ sung nhiều font tiếng Việt -->
+    <!-- Google Fonts dự phòng -->
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Comic+Neue:wght@400;700&family=Quicksand:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Dancing+Script:wght@400;500;600;700&family=Pacifico&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -23,13 +23,19 @@
             font-weight: normal;
             font-style: normal;
         }
+        @font-face {
+            font-family: 'ICIELPacifico';
+            src: url('https://cdn.jsdelivr.net/gh/trungcaowork06-cloud/quanlybanhsungboo/ICIEL-Pacifico.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
         body {
             font-family: 'Comic Neue', 'Be Vietnam Pro', cursive;
             background: #fef7e8;
             background-image: radial-gradient(circle at 10% 20%, #fff3db 2%, #ffe6b3 90%);
             min-height: 100vh;
             color: #3b2a1f;
-            transition: font-family 0.2s;
+            transition: all 0.2s;
         }
         .cartoon-card {
             background: #fffaf0;
@@ -37,6 +43,10 @@
             box-shadow: 12px 12px 0 #ffc28c, 0 8px 20px rgba(0,0,0,0.1);
             border: 2px solid #ffb882;
             transition: 0.2s;
+        }
+        .cartoon-card:hover {
+            transform: translate(-3px, -3px);
+            box-shadow: 15px 15px 0 #ffa559;
         }
         button, .cute-btn {
             font-family: inherit;
@@ -70,6 +80,7 @@
             border-right: 6px solid #ffc28c;
             padding: 2rem 1rem;
             border-radius: 0 48px 48px 0;
+            transition: all 0.2s;
         }
         .logo-area { text-align: center; margin-bottom: 2rem; }
         .logo-area h2 {
@@ -165,6 +176,47 @@
             max-height: 90vh;
             overflow-y: auto;
         }
+        /* Modal xác nhận riêng */
+        .confirm-modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            visibility: hidden;
+            backdrop-filter: blur(4px);
+        }
+        .confirm-modal {
+            background: #fff8ec;
+            border-radius: 48px;
+            padding: 28px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            border: 4px solid #ffb85e;
+            box-shadow: 20px 20px 0 #ba7a2e;
+        }
+        .confirm-modal i {
+            font-size: 3rem;
+            color: #e67e22;
+            margin-bottom: 16px;
+        }
+        .confirm-modal h3 {
+            margin-bottom: 12px;
+            color: #a35100;
+        }
+        .confirm-modal p {
+            margin-bottom: 24px;
+            color: #5a3e2a;
+        }
+        .confirm-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
         .modal-content label {
             display: flex;
             align-items: center;
@@ -247,6 +299,9 @@
         .add-film-btn { margin-top: 8px; background-color: #a3e0b0; box-shadow: 0 3px 0 #488a2e; padding: 6px 12px; font-size: 0.8rem; }
         .search-box { margin-bottom: 16px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         .search-box input { flex: 1; min-width: 120px; }
+        .color-input { width: 60px; height: 40px; border-radius: 20px; cursor: pointer; }
+        .setting-group { margin-bottom: 20px; }
+        .setting-group label { display: block; margin-bottom: 6px; font-weight: bold; color: #a35100; }
 
         /* ========== RESPONSIVE MOBILE ========== */
         @media (max-width: 780px) {
@@ -343,13 +398,45 @@
         siteTitle: "Banhsungboo Pro", 
         headerText: "📸 Cho thuê máy ảnh & Bán film", 
         footerText: "© 2026 Banhsungboo - Thỏa sức sáng tạo",
-        fontFamily: "'Comic Neue', 'Be Vietnam Pro', cursive"
+        fontFamily: "'Comic Neue', 'Be Vietnam Pro', cursive",
+        primaryColor: "#ffd966",
+        primaryShadow: "#b97f10",
+        bgColor: "#fef7e8",
+        sidebarColor: "#ffecb3",
+        cardBg: "#fffaf0",
+        cartoonEffect: true,
+        darkMode: false
     };
     let currentView = 'dashboard';
     let revenueChart = null;
     let selectedCameraForCalendar = null;
     let currentCalendarDate = new Date();
     let rentalSearchKeyword = '';
+
+    // ======================== MODAL XÁC NHẬN ĐẸP ========================
+    function showConfirmDialog(message, onConfirm, onCancel) {
+        const overlay = document.createElement('div');
+        overlay.className = 'confirm-modal-overlay';
+        overlay.innerHTML = `
+            <div class="confirm-modal">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Xác nhận</h3>
+                <p>${escapeHtml(message)}</p>
+                <div class="confirm-buttons">
+                    <button class="cute-btn btn-danger" id="confirmYesBtn">Xóa</button>
+                    <button class="cute-btn" id="confirmNoBtn">Hủy</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        setTimeout(() => overlay.style.visibility = 'visible', 10);
+        const yesBtn = overlay.querySelector('#confirmYesBtn');
+        const noBtn = overlay.querySelector('#confirmNoBtn');
+        const cleanup = () => overlay.remove();
+        yesBtn.onclick = () => { onConfirm?.(); cleanup(); };
+        noBtn.onclick = () => { onCancel?.(); cleanup(); };
+        window.onclick = (e) => { if (e.target === overlay) cleanup(); };
+    }
 
     function generateId() { return Date.now() + '-' + Math.random().toString(36).substr(2, 8); }
     function formatVND(amount) { return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount); }
@@ -449,10 +536,23 @@
     }
     async function deleteCamera(cameraId) {
         if (!currentUserId) return false;
-        if (!confirm("❌ Bạn có chắc chắn muốn xóa máy ảnh này? Hành động này không thể hoàn tác!")) return false;
-        const hasRentals = rentals.some(r => r.cameraId === cameraId);
-        if (hasRentals && !confirm("⚠️ Máy này đã có lịch sử thuê. Xóa máy sẽ KHÔNG xóa lịch sử (vẫn hiển thị tên máy đã xóa). Tiếp tục?")) return false;
-        await remove(ref(db, `users/${currentUserId}/cameras/${cameraId}`));
+        let confirmed = false;
+        await new Promise(resolve => {
+            showConfirmDialog("Bạn có chắc chắn muốn xóa máy ảnh này?", async () => {
+                const hasRentals = rentals.some(r => r.cameraId === cameraId);
+                if (hasRentals) {
+                    showConfirmDialog("⚠️ Máy này đã có lịch sử thuê. Xóa máy sẽ KHÔNG xóa lịch sử (vẫn hiển thị tên máy đã xóa). Tiếp tục?", async () => {
+                        await remove(ref(db, `users/${currentUserId}/cameras/${cameraId}`));
+                        showToast("🗑️ Đã xóa máy");
+                        resolve(true);
+                    }, () => resolve(false));
+                } else {
+                    await remove(ref(db, `users/${currentUserId}/cameras/${cameraId}`));
+                    showToast("🗑️ Đã xóa máy");
+                    resolve(true);
+                }
+            }, () => resolve(false));
+        });
         return true;
     }
     async function updateCamera(cameraId, newName) {
@@ -540,17 +640,29 @@
     
     async function deleteRental(rentalId) {
         if (!currentUserId) return false;
-        if (!confirm("❌ Bạn có chắc chắn muốn xóa lịch thuê này? Hành động này không thể hoàn tác!")) return false;
-        const salesToDelete = filmSales.filter(s => s.rentalId === rentalId);
-        for (let sale of salesToDelete) await remove(ref(db, `users/${currentUserId}/filmSales/${sale.id}`));
-        await remove(ref(db, `users/${currentUserId}/rentals/${rentalId}`));
+        let confirmed = false;
+        await new Promise(resolve => {
+            showConfirmDialog("Bạn có chắc chắn muốn xóa lịch thuê này?", async () => {
+                const salesToDelete = filmSales.filter(s => s.rentalId === rentalId);
+                for (let sale of salesToDelete) await remove(ref(db, `users/${currentUserId}/filmSales/${sale.id}`));
+                await remove(ref(db, `users/${currentUserId}/rentals/${rentalId}`));
+                showToast("Đã xóa lịch thuê");
+                resolve(true);
+            }, () => resolve(false));
+        });
         return true;
     }
     
     async function deleteFilmSale(saleId) {
         if (!currentUserId) return false;
-        if (!confirm("❌ Bạn có chắc chắn muốn xóa đơn bán film này? Hành động này không thể hoàn tác!")) return false;
-        await remove(ref(db, `users/${currentUserId}/filmSales/${saleId}`));
+        let confirmed = false;
+        await new Promise(resolve => {
+            showConfirmDialog("Bạn có chắc chắn muốn xóa đơn bán film này?", async () => {
+                await remove(ref(db, `users/${currentUserId}/filmSales/${saleId}`));
+                showToast("Đã xóa đơn bán film");
+                resolve(true);
+            }, () => resolve(false));
+        });
         return true;
     }
     
@@ -562,10 +674,23 @@
     }
     async function deleteFilm(filmId) {
         if (!currentUserId) return false;
-        if (!confirm("❌ Bạn có chắc chắn muốn xóa loại film này? Hành động này không thể hoàn tác!")) return false;
-        const hasSales = filmSales.some(s => s.filmId === filmId);
-        if (hasSales && !confirm("⚠️ Film này đã có trong lịch sử bán. Xóa sẽ giữ lịch sử nhưng film sẽ không còn trong danh sách. Tiếp tục?")) return false;
-        await remove(ref(db, `users/${currentUserId}/films/${filmId}`));
+        let confirmed = false;
+        await new Promise(resolve => {
+            showConfirmDialog("Bạn có chắc chắn muốn xóa loại film này?", async () => {
+                const hasSales = filmSales.some(s => s.filmId === filmId);
+                if (hasSales) {
+                    showConfirmDialog("⚠️ Film này đã có trong lịch sử bán. Xóa sẽ giữ lịch sử nhưng film sẽ không còn trong danh sách. Tiếp tục?", async () => {
+                        await remove(ref(db, `users/${currentUserId}/films/${filmId}`));
+                        showToast("Đã xóa film");
+                        resolve(true);
+                    }, () => resolve(false));
+                } else {
+                    await remove(ref(db, `users/${currentUserId}/films/${filmId}`));
+                    showToast("Đã xóa film");
+                    resolve(true);
+                }
+            }, () => resolve(false));
+        });
         return true;
     }
     async function updateFilm(filmId, newName, newPrice) {
@@ -577,7 +702,23 @@
     async function updateGlobalSettings(newSettings) {
         if (!isAdmin) return;
         await update(ref(db, `global_settings`), newSettings);
-        if (newSettings.fontFamily) document.body.style.fontFamily = newSettings.fontFamily;
+        applyGlobalStyles(newSettings);
+    }
+
+    function applyGlobalStyles(settings) {
+        if (settings.primaryColor) document.documentElement.style.setProperty('--primary-color', settings.primaryColor);
+        if (settings.bgColor) document.body.style.backgroundColor = settings.bgColor;
+        if (settings.sidebarColor) {
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar) sidebar.style.backgroundColor = settings.sidebarColor;
+        }
+        if (settings.fontFamily) document.body.style.fontFamily = settings.fontFamily;
+        if (settings.cartoonEffect === false) { }
+        if (settings.darkMode) {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
     }
 
     function subscribeGlobalSettings() {
@@ -585,7 +726,7 @@
             const data = snap.val();
             if (data) {
                 appSettings = { ...appSettings, ...data };
-                if (appSettings.fontFamily) document.body.style.fontFamily = appSettings.fontFamily;
+                applyGlobalStyles(appSettings);
             } else set(ref(db, `global_settings`), appSettings);
             document.title = appSettings.siteTitle;
             const titleEl = document.getElementById('dynamicTitle');
@@ -633,8 +774,8 @@
         else if (currentView === 'filmSales') renderFilmSales();
         else if (currentView === 'calendar') renderCalendar();
         else if (currentView === 'settings' && isAdmin) renderSettings();
-        else if (currentView === 'admin' && isAdmin) renderAdminDashboard();
-        else if (isAdmin) renderAdminDashboard();
+        else if (currentView === 'changePassword' && isAdmin) renderChangePassword();
+        else if (isAdmin) renderSettings();
         else renderDashboard();
         document.querySelectorAll('.menu-item').forEach(item => {
             if (item.dataset.view === currentView) item.classList.add('active');
@@ -642,7 +783,7 @@
         });
     }
 
-    // Calendar
+    // ======================== CÁC HÀM RENDER ========================
     function renderCalendar() {
         if (!cameras.length) {
             document.getElementById('mainContent').innerHTML = `<div class="cartoon-card" style="padding:20px; text-align:center">🎈 Chưa có máy ảnh nào. Hãy thêm máy trước.</div>`;
@@ -685,7 +826,6 @@
         document.getElementById('nextMonthBtn')?.addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1); renderCalendar(); });
     }
 
-    // Dashboard
     function renderDashboard() {
         const stats = getStats();
         const most = getMostRentedCamera();
@@ -693,7 +833,7 @@
         const filmStats = getFilmStats();
         let topHtml = '';
         if (topCustomers.length === 0) topHtml = `<div class="cartoon-card" style="padding:20px; margin-top:20px;"><h3><i class="fas fa-users"></i> 🏆 Top khách hàng</h3><div class="text-center" style="padding:20px;">✨ Chưa có dữ liệu</div></div>`;
-        else topHtml = `<div class="cartoon-card" style="padding:20px; margin-top:20px;"><h3><i class="fas fa-users"></i> 🏆 Top khách hàng</h3><div style="overflow-x:auto;"><table style="width:100%;"><thead><tr><th>#</th><th>Tên KH</th><th>Số lần</th><th>Tổng chi</th><th>LK</th></tr></thead><tbody>${topCustomers.map((c,i)=>`</td>
+        else topHtml = `<div class="cartoon-card" style="padding:20px; margin-top:20px;"><h3><i class="fas fa-users"></i> 🏆 Top khách hàng</h3><div style="overflow-x:auto;"><table style="width:100%;"><thead><tr><th>#</th><th>Tên KH</th><th>Số lần</th><th>Tổng chi</th><th>LK</th></tr></thead><tbody>${topCustomers.map((c,i)=>`<tr>
                 <td>${i+1}</td>
                 <td>${escapeHtml(c.name)}</td>
                 <td>${c.count}</td>
@@ -728,7 +868,6 @@
         if (ctx) { if (revenueChart) revenueChart.destroy(); revenueChart = new Chart(ctx, { type: 'bar', data: { labels: Array.from(revMap.keys()), datasets: [{ label: 'Doanh thu (VND)', data: Array.from(revMap.values()), backgroundColor: '#ffaa66', borderRadius: 20 }] }, options: { responsive: true } }); }
     }
 
-    // Cameras
     function renderCameras() {
         let html = `<div class="user-info"><span><i class="fas fa-user-circle"></i> ${escapeHtml(currentUsername)}${isAdmin ? ' (Admin)' : ''}</span><button id="logoutBtn" class="logout-btn">Đăng xuất</button></div>
             <div class="cartoon-card" style="padding:20px; margin-bottom:24px;"><h2><i class="fas fa-plus-circle"></i> Thêm máy ảnh</h2>
@@ -746,7 +885,7 @@
         document.getElementById('mainContent').innerHTML = html;
         document.getElementById('logoutBtn')?.addEventListener('click',()=>logout());
         document.getElementById('addCameraBtn')?.addEventListener('click',async()=>{ const name=document.getElementById('newCamName').value; if(name.trim()){ await addCamera(name); showToast(`📸 Thêm ${name}`); } else showToast("Nhập tên máy"); });
-        document.querySelectorAll('.deleteCamBtn').forEach(btn=>btn.addEventListener('click',async()=>{ if(await deleteCamera(btn.dataset.id)) showToast("🗑️ Đã xóa máy"); }));
+        document.querySelectorAll('.deleteCamBtn').forEach(btn=>btn.addEventListener('click',async()=>{ await deleteCamera(btn.dataset.id); }));
         document.querySelectorAll('.addRentBtn').forEach(btn=>btn.addEventListener('click',()=>{
             document.getElementById('modalCameraId').value=btn.dataset.id;
             document.getElementById('modalCameraName').innerText=`Máy: ${btn.dataset.name}`;
@@ -760,7 +899,7 @@
             updatePreviewTotal();
             document.getElementById('rentalModal').style.visibility='visible';
         }));
-        document.querySelectorAll('.deleteRentalBtn').forEach(btn=>btn.addEventListener('click',async(e)=>{ e.stopPropagation(); if(await deleteRental(btn.dataset.id)) showToast("Đã xóa lịch thuê"); }));
+        document.querySelectorAll('.deleteRentalBtn').forEach(btn=>btn.addEventListener('click',async(e)=>{ e.stopPropagation(); await deleteRental(btn.dataset.id); }));
         document.querySelectorAll('.editCamBtn').forEach(btn=>btn.addEventListener('click',()=>{
             document.getElementById('editCameraId').value=btn.dataset.id;
             document.getElementById('editCameraName').value=btn.dataset.name;
@@ -768,7 +907,6 @@
         }));
     }
 
-    // Lịch thuê có tìm kiếm
     function renderAllRentals() {
         let filtered = [...rentals];
         if (rentalSearchKeyword.trim()) {
@@ -815,15 +953,14 @@
             rentalSearchKeyword = '';
             renderAllRentals();
         });
-        document.querySelectorAll('.deleteRentalGlobal').forEach(btn=>btn.addEventListener('click',async()=>{ if(await deleteRental(btn.dataset.id)) showToast("Đã xóa lịch thuê"); renderAllRentals(); }));
+        document.querySelectorAll('.deleteRentalGlobal').forEach(btn=>btn.addEventListener('click',async()=>{ await deleteRental(btn.dataset.id); renderAllRentals(); }));
     }
 
-    // Quản lý film
     function renderFilms() {
         let html = `<div class="user-info"><span><i class="fas fa-user-circle"></i> ${escapeHtml(currentUsername)}${isAdmin ? ' (Admin)' : ''}</span><button id="logoutBtn" class="logout-btn">Đăng xuất</button></div>
             <div class="cartoon-card" style="padding:20px; margin-bottom:24px;"><h2><i class="fas fa-plus-circle"></i> Thêm loại film mới</h2>
             <div style="display:flex; flex-wrap:wrap; gap:12px;"><input type="text" id="newFilmName" placeholder="Tên film (VD: Kodak 200)" style="flex:2"><input type="number" id="newFilmPrice" placeholder="Giá (VNĐ)" style="width:150px"><button id="addFilmBtn" class="cute-btn">Thêm film</button></div></div>
-            <div class="films-table-wrapper"><table class="table-films"><thead><tr><th>Tên film</th><th>Giá bán</th><th>Đã bán (cuộn)</th><th>Doanh thu</th><th>Thao tác</th></td></thead><tbody>`;
+            <div class="films-table-wrapper"><table class="table-films"><thead><tr><th>Tên film</th><th>Giá bán</th><th>Đã bán (cuộn)</th><th>Doanh thu</th><th>Thao tác</th></tr></thead><tbody>`;
         if (films.length===0) html+=`<tr><td colspan="5" class="text-center">🎈 Chưa có loại film nào</td></tr>`;
         films.forEach(f => {
             const sales = filmSales.filter(s => s.filmId === f.id);
@@ -847,9 +984,7 @@
             if(name && price>0) { await addFilm(name, price); showToast(`🎞️ Thêm film ${name}`); }
             else showToast("Nhập đủ tên và giá");
         });
-        document.querySelectorAll('.deleteFilmBtn').forEach(btn=>btn.addEventListener('click',async()=>{
-            if(await deleteFilm(btn.dataset.id)) showToast("Đã xóa film");
-        }));
+        document.querySelectorAll('.deleteFilmBtn').forEach(btn=>btn.addEventListener('click',async()=>{ await deleteFilm(btn.dataset.id); }));
         document.querySelectorAll('.editFilmBtn').forEach(btn=>btn.addEventListener('click',()=>{
             const id = btn.dataset.id;
             const oldName = btn.dataset.name;
@@ -865,7 +1000,6 @@
         }));
     }
 
-    // Bán film lẻ
     function renderFilmSales() {
         const sales = standaloneFilmSales.sort((a,b)=>new Date(b.saleDate)-new Date(a.saleDate));
         let html = `<div class="user-info"><span><i class="fas fa-user-circle"></i> ${escapeHtml(currentUsername)}${isAdmin ? ' (Admin)' : ''}</span><button id="logoutBtn" class="logout-btn">Đăng xuất</button></div>
@@ -873,7 +1007,7 @@
             <button id="openFilmSaleModalBtn" class="cute-btn btn-success"><i class="fas fa-plus"></i> + Tạo đơn bán film</button></div>
             <div class="cartoon-card" style="padding:20px;"><h2>📜 Lịch sử bán film lẻ</h2></div>
             <div class="film-sales-wrapper"><table class="table-sales"><thead><tr><th>Khách hàng</th><th>Social</th><th>Film</th><th>Số lượng</th><th>Thành tiền</th><th>Ngày bán</th><th>Xoá</th></tr></thead><tbody>`;
-        if (sales.length===0) html+=`<tr><td colspan="7" class="text-center">🎈 Chưa có đơn bán film lẻ</td><tr>`;
+        if (sales.length===0) html+=`<tr><td colspan="7" class="text-center">🎈 Chưa có đơn bán film lẻ</td></tr>`;
         sales.forEach(sale => {
             const film = films.find(f => f.id === sale.filmId);
             const filmName = film ? film.name : "Film đã xóa";
@@ -899,9 +1033,7 @@
             updateStandaloneTotal();
             document.getElementById('standaloneFilmSaleModal').style.visibility = 'visible';
         });
-        document.querySelectorAll('.deleteFilmSaleBtn').forEach(btn=>btn.addEventListener('click',async()=>{
-            if(await deleteFilmSale(btn.dataset.id)) showToast("Đã xóa đơn bán film");
-        }));
+        document.querySelectorAll('.deleteFilmSaleBtn').forEach(btn=>btn.addEventListener('click',async()=>{ await deleteFilmSale(btn.dataset.id); renderFilmSales(); }));
     }
 
     let selectedFilmItems = [];
@@ -1007,48 +1139,125 @@
         document.getElementById('standalonePreviewTotal').innerHTML = formatVND(total);
     }
 
-    // Admin settings - thêm nhiều font tiếng Việt
+    // Cài đặt giao diện (chỉ admin) - đã thêm font ICIELPacifico
     function renderSettings() {
         let html = `<div class="user-info"><span><i class="fas fa-user-cog"></i> ${escapeHtml(currentUsername)} (Admin)</span><button id="logoutBtn" class="logout-btn">Đăng xuất</button></div>
-            <div class="cartoon-card" style="padding:28px; margin-bottom:20px;"><h2><i class="fas fa-palette"></i> Cài đặt giao diện (toàn hệ thống)</h2>
-            <div><label>🏷️ Tiêu đề trang:</label><input type="text" id="setTitle" value="${escapeHtml(appSettings.siteTitle)}">
-            <label>📢 Header chính:</label><input type="text" id="setHeader" value="${escapeHtml(appSettings.headerText)}">
-            <label>📌 Footer:</label><input type="text" id="setFooter" value="${escapeHtml(appSettings.footerText)}">
-            <label><i class="fas fa-font"></i> Font chữ toàn website (hỗ trợ tiếng Việt):</label>
-            <select id="fontSelect">
-                <option value="'Comic Neue', 'Be Vietnam Pro', cursive" ${appSettings.fontFamily === "'Comic Neue', 'Be Vietnam Pro', cursive" ? 'selected' : ''}>🎨 Mặc định (Comic Neue)</option>
-                <option value="'Be Vietnam Pro', sans-serif" ${appSettings.fontFamily === "'Be Vietnam Pro', sans-serif" ? 'selected' : ''}>🇻🇳 FZ Fragrant (Be Vietnam Pro)</option>
-                <option value="'Quicksand', sans-serif" ${appSettings.fontFamily === "'Quicksand', sans-serif" ? 'selected' : ''}>💨 Quicksand</option>
-                <option value="'FzFragrant', sans-serif" ${appSettings.fontFamily === "'FzFragrant', sans-serif" ? 'selected' : ''}>🌸 Fz Fragrant (font của bạn)</option>
-                <option value="'iCielCrocante', sans-serif" ${appSettings.fontFamily === "'iCielCrocante', sans-serif" ? 'selected' : ''}>🍃 iCiel Crocante (font mới)</option>
-                <option value="'Roboto', sans-serif" ${appSettings.fontFamily === "'Roboto', sans-serif" ? 'selected' : ''}>📱 Roboto</option>
-                <option value="'Open Sans', sans-serif" ${appSettings.fontFamily === "'Open Sans', sans-serif" ? 'selected' : ''}>📖 Open Sans</option>
-                <option value="'Montserrat', sans-serif" ${appSettings.fontFamily === "'Montserrat', sans-serif" ? 'selected' : ''}>✨ Montserrat</option>
-                <option value="'Nunito', sans-serif" ${appSettings.fontFamily === "'Nunito', sans-serif" ? 'selected' : ''}>🎈 Nunito</option>
-                <option value="'Lato', sans-serif" ${appSettings.fontFamily === "'Lato', sans-serif" ? 'selected' : ''}>📚 Lato</option>
-                <option value="'Inter', sans-serif" ${appSettings.fontFamily === "'Inter', sans-serif" ? 'selected' : ''}>💻 Inter</option>
-                <option value="'Playfair Display', serif" ${appSettings.fontFamily === "'Playfair Display', serif" ? 'selected' : ''}>🏛️ Playfair Display (serif)</option>
-                <option value="'Dancing Script', cursive" ${appSettings.fontFamily === "'Dancing Script', cursive" ? 'selected' : ''}>💃 Dancing Script (cursive)</option>
-                <option value="'Pacifico', cursive" ${appSettings.fontFamily === "'Pacifico', cursive" ? 'selected' : ''}>🏝️ Pacifico (cursive)</option>
-            </select>
-            <button id="saveSettingsBtn" class="cute-btn btn-success" style="margin-top:16px"><i class="fas fa-save"></i> Lưu cài đặt</button></div></div>
-            <div class="cartoon-card" style="padding:28px;"><h2><i class="fas fa-key"></i> Đổi mật khẩu</h2>
-            <div><label>Mật khẩu hiện tại:</label><input type="password" id="oldPassword">
-            <label>Mật khẩu mới:</label><input type="password" id="newPassword">
-            <label>Xác nhận mật khẩu mới:</label><input type="password" id="confirmNewPassword">
-            <button id="changePasswordBtn" class="cute-btn">Đổi mật khẩu</button></div></div>
+            <div class="cartoon-card" style="padding:28px; margin-bottom:20px;">
+                <h2><i class="fas fa-palette"></i> Tùy chỉnh giao diện</h2>
+                <div class="setting-group">
+                    <label>🏷️ Tiêu đề trang:</label>
+                    <input type="text" id="setTitle" value="${escapeHtml(appSettings.siteTitle)}">
+                </div>
+                <div class="setting-group">
+                    <label>📢 Header chính:</label>
+                    <input type="text" id="setHeader" value="${escapeHtml(appSettings.headerText)}">
+                </div>
+                <div class="setting-group">
+                    <label>📌 Footer:</label>
+                    <input type="text" id="setFooter" value="${escapeHtml(appSettings.footerText)}">
+                </div>
+                <div class="setting-group">
+                    <label><i class="fas fa-font"></i> Font chữ:</label>
+                    <select id="fontSelect">
+                        <option value="'Comic Neue', 'Be Vietnam Pro', cursive" ${appSettings.fontFamily === "'Comic Neue', 'Be Vietnam Pro', cursive" ? 'selected' : ''}>🎨 Mặc định (Comic Neue)</option>
+                        <option value="'Be Vietnam Pro', sans-serif" ${appSettings.fontFamily === "'Be Vietnam Pro', sans-serif" ? 'selected' : ''}>🇻🇳 FZ Fragrant (Be Vietnam Pro)</option>
+                        <option value="'Quicksand', sans-serif" ${appSettings.fontFamily === "'Quicksand', sans-serif" ? 'selected' : ''}>💨 Quicksand</option>
+                        <option value="'FzFragrant', sans-serif" ${appSettings.fontFamily === "'FzFragrant', sans-serif" ? 'selected' : ''}>🌸 Fz Fragrant (font của bạn)</option>
+                        <option value="'iCielCrocante', sans-serif" ${appSettings.fontFamily === "'iCielCrocante', sans-serif" ? 'selected' : ''}>🍃 iCiel Crocante</option>
+                        <option value="'ICIELPacifico', sans-serif" ${appSettings.fontFamily === "'ICIELPacifico', sans-serif" ? 'selected' : ''}>🌊 ICIEL Pacifico (font mới)</option>
+                        <option value="'Roboto', sans-serif" ${appSettings.fontFamily === "'Roboto', sans-serif" ? 'selected' : ''}>📱 Roboto</option>
+                        <option value="'Open Sans', sans-serif" ${appSettings.fontFamily === "'Open Sans', sans-serif" ? 'selected' : ''}>📖 Open Sans</option>
+                        <option value="'Montserrat', sans-serif" ${appSettings.fontFamily === "'Montserrat', sans-serif" ? 'selected' : ''}>✨ Montserrat</option>
+                        <option value="'Nunito', sans-serif" ${appSettings.fontFamily === "'Nunito', sans-serif" ? 'selected' : ''}>🎈 Nunito</option>
+                        <option value="'Lato', sans-serif" ${appSettings.fontFamily === "'Lato', sans-serif" ? 'selected' : ''}>📚 Lato</option>
+                        <option value="'Inter', sans-serif" ${appSettings.fontFamily === "'Inter', sans-serif" ? 'selected' : ''}>💻 Inter</option>
+                        <option value="'Playfair Display', serif" ${appSettings.fontFamily === "'Playfair Display', serif" ? 'selected' : ''}>🏛️ Playfair Display (serif)</option>
+                        <option value="'Dancing Script', cursive" ${appSettings.fontFamily === "'Dancing Script', cursive" ? 'selected' : ''}>💃 Dancing Script (cursive)</option>
+                        <option value="'Pacifico', cursive" ${appSettings.fontFamily === "'Pacifico', cursive" ? 'selected' : ''}>🏝️ Pacifico (cursive - Google)</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label><i class="fas fa-fill-drip"></i> Màu nền chính:</label>
+                    <input type="color" id="bgColor" value="${appSettings.bgColor || '#fef7e8'}" class="color-input">
+                </div>
+                <div class="setting-group">
+                    <label><i class="fas fa-columns"></i> Màu sidebar:</label>
+                    <input type="color" id="sidebarColor" value="${appSettings.sidebarColor || '#ffecb3'}" class="color-input">
+                </div>
+                <div class="setting-group">
+                    <label><i class="fas fa-palette"></i> Màu chủ đạo (nút):</label>
+                    <input type="color" id="primaryColor" value="${appSettings.primaryColor || '#ffd966'}" class="color-input">
+                </div>
+                <div class="setting-group">
+                    <label><i class="fas fa-magic"></i> Hiệu ứng cartoon (bóng đổ):</label>
+                    <input type="checkbox" id="cartoonEffect" ${appSettings.cartoonEffect !== false ? 'checked' : ''}>
+                </div>
+                <div class="setting-group">
+                    <label><i class="fas fa-moon"></i> Chế độ tối:</label>
+                    <input type="checkbox" id="darkMode" ${appSettings.darkMode ? 'checked' : ''}>
+                </div>
+                <div class="setting-group">
+                    <button id="resetSettingsBtn" class="cute-btn">Khôi phục mặc định</button>
+                </div>
+                <button id="saveSettingsBtn" class="cute-btn btn-success" style="margin-top:16px"><i class="fas fa-save"></i> Lưu cài đặt</button>
+            </div>
             <footer>${escapeHtml(appSettings.footerText)}</footer>`;
         document.getElementById('mainContent').innerHTML = html;
         document.getElementById('logoutBtn')?.addEventListener('click',()=>logout());
         document.getElementById('saveSettingsBtn')?.addEventListener('click',async()=>{
-            await updateGlobalSettings({
+            const newSettings = {
                 siteTitle: document.getElementById('setTitle').value,
                 headerText: document.getElementById('setHeader').value,
                 footerText: document.getElementById('setFooter').value,
-                fontFamily: document.getElementById('fontSelect').value
-            });
+                fontFamily: document.getElementById('fontSelect').value,
+                bgColor: document.getElementById('bgColor').value,
+                sidebarColor: document.getElementById('sidebarColor').value,
+                primaryColor: document.getElementById('primaryColor').value,
+                cartoonEffect: document.getElementById('cartoonEffect').checked,
+                darkMode: document.getElementById('darkMode').checked
+            };
+            await updateGlobalSettings(newSettings);
             showToast("✅ Cập nhật giao diện toàn hệ thống thành công!");
         });
+        document.getElementById('resetSettingsBtn')?.addEventListener('click',async()=>{
+            const defaultSettings = {
+                siteTitle: "Banhsungboo Pro",
+                headerText: "📸 Cho thuê máy ảnh & Bán film",
+                footerText: "© 2026 Banhsungboo - Thỏa sức sáng tạo",
+                fontFamily: "'Comic Neue', 'Be Vietnam Pro', cursive",
+                bgColor: "#fef7e8",
+                sidebarColor: "#ffecb3",
+                primaryColor: "#ffd966",
+                cartoonEffect: true,
+                darkMode: false
+            };
+            await updateGlobalSettings(defaultSettings);
+            showToast("🔄 Đã khôi phục cài đặt mặc định");
+        });
+    }
+
+    // Đổi mật khẩu
+    function renderChangePassword() {
+        let html = `<div class="user-info"><span><i class="fas fa-user-cog"></i> ${escapeHtml(currentUsername)} (Admin)</span><button id="logoutBtn" class="logout-btn">Đăng xuất</button></div>
+            <div class="cartoon-card" style="padding:28px;">
+                <h2><i class="fas fa-key"></i> Đổi mật khẩu</h2>
+                <div class="setting-group">
+                    <label>Mật khẩu hiện tại:</label>
+                    <input type="password" id="oldPassword">
+                </div>
+                <div class="setting-group">
+                    <label>Mật khẩu mới:</label>
+                    <input type="password" id="newPassword">
+                </div>
+                <div class="setting-group">
+                    <label>Xác nhận mật khẩu mới:</label>
+                    <input type="password" id="confirmNewPassword">
+                </div>
+                <button id="changePasswordBtn" class="cute-btn btn-success">Đổi mật khẩu</button>
+            </div>
+            <footer>${escapeHtml(appSettings.footerText)}</footer>`;
+        document.getElementById('mainContent').innerHTML = html;
+        document.getElementById('logoutBtn')?.addEventListener('click',()=>logout());
         document.getElementById('changePasswordBtn')?.addEventListener('click',async()=>{
             const old=document.getElementById('oldPassword').value, newPw=document.getElementById('newPassword').value, confirm=document.getElementById('confirmNewPassword').value;
             if(!old||!newPw||!confirm) { showToast("Vui lòng nhập đầy đủ"); return; }
@@ -1062,130 +1271,7 @@
         });
     }
 
-    async function renderAdminDashboard() {
-        const usersMetaRef=ref(db,`users_meta`);
-        const snap=await get(usersMetaRef);
-        let totalUsers=0, totalCamerasAll=0, totalRevenueAll=0, totalRentalsAll=0, totalFilmSalesAll=0, totalFilmRevenueAll=0;
-        if(snap.exists()){
-            const users=snap.val();
-            totalUsers=Object.keys(users).length;
-            for(let uname in users){
-                const uid=users[uname].userId;
-                const camSnap=await get(ref(db,`users/${uid}/cameras`));
-                const rentSnap=await get(ref(db,`users/${uid}/rentals`));
-                const filmSalesSnap=await get(ref(db,`users/${uid}/filmSales`));
-                if(camSnap.exists()) totalCamerasAll+=Object.keys(camSnap.val()).length;
-                if(rentSnap.exists()){
-                    const rents=Object.values(rentSnap.val());
-                    totalRentalsAll+=rents.length;
-                    totalRevenueAll+=rents.reduce((s,r)=>s+(r.totalRevenue||0),0);
-                }
-                if(filmSalesSnap.exists()){
-                    const sales=Object.values(filmSalesSnap.val());
-                    totalFilmSalesAll+=sales.length;
-                    totalFilmRevenueAll+=sales.reduce((s,sl)=>s+(sl.revenue||0),0);
-                }
-            }
-        }
-        const html=`<div class="user-info"><span><i class="fas fa-user-shield"></i> ${escapeHtml(currentUsername)} (Quản trị)</span><button id="logoutBtn" class="logout-btn">Đăng xuất</button></div>
-            <div class="cartoon-card" style="padding:24px;"><h1><i class="fas fa-chart-pie"></i> Dashboard Quản trị</h1></div>
-            <div class="dashboard-stats">
-                <div class="stat-card"><i class="fas fa-users fa-2x"></i><div class="stat-number">${totalUsers}</div><div>Người dùng</div></div>
-                <div class="stat-card"><i class="fas fa-camera fa-2x"></i><div class="stat-number">${totalCamerasAll}</div><div>Tổng máy ảnh</div></div>
-                <div class="stat-card"><i class="fas fa-dollar-sign fa-2x"></i><div class="stat-number">${formatVND(totalRevenueAll)}</div><div>Doanh thu thuê</div></div>
-                <div class="stat-card"><i class="fas fa-film fa-2x"></i><div class="stat-number">${totalFilmSalesAll}</div><div>Giao dịch film</div></div>
-                <div class="stat-card"><i class="fas fa-money-bill-wave fa-2x"></i><div class="stat-number">${formatVND(totalFilmRevenueAll)}</div><div>Doanh thu film</div></div>
-            </div>
-            <footer>${escapeHtml(appSettings.footerText)}</footer>`;
-        document.getElementById('mainContent').innerHTML = html;
-        document.getElementById('logoutBtn')?.addEventListener('click',()=>logout());
-    }
-
-    // Khởi tạo modal
-    function initModals() {
-        const rentalModal = document.getElementById('rentalModal');
-        document.getElementById('closeModalBtn').onclick = () => rentalModal.style.visibility = 'hidden';
-        window.onclick = (e) => { if (e.target === rentalModal) rentalModal.style.visibility = 'hidden'; };
-        const priceInputs = ['basePrice', 'extraPin', 'extraDamage', 'extraShipping', 'extraFilm'];
-        priceInputs.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.addEventListener('input', updatePreviewTotal);
-        });
-        const addFilmSelectBtn = document.getElementById('addFilmSelectBtn');
-        if (addFilmSelectBtn) {
-            addFilmSelectBtn.onclick = () => {
-                const filmId = document.getElementById('filmSelect').value;
-                if (filmId) {
-                    const existing = selectedFilmItems.find(item => item.filmId === filmId);
-                    if (existing) existing.quantity += 1;
-                    else selectedFilmItems.push({ filmId, quantity: 1 });
-                    renderFilmSelection();
-                    updatePreviewTotal();
-                }
-            };
-        }
-        document.getElementById('saveRentalBtn').onclick = async () => {
-            const camId = document.getElementById('modalCameraId').value;
-            const customerName = document.getElementById('customerName').value;
-            const customerSocial = document.getElementById('customerSocial').value;
-            const start = document.getElementById('rentalStart').value;
-            const end = document.getElementById('rentalEnd').value;
-            const base = parseFloat(document.getElementById('basePrice').value) || 0;
-            const pin = parseFloat(document.getElementById('extraPin').value) || 0;
-            const damage = parseFloat(document.getElementById('extraDamage').value) || 0;
-            const ship = parseFloat(document.getElementById('extraShipping').value) || 0;
-            const extraFilm = parseFloat(document.getElementById('extraFilm').value) || 0;
-            if (!start || !end) { showToast("Vui lòng chọn thời gian!"); return; }
-            if (!customerName.trim()) { showToast("Vui lòng nhập tên khách hàng!"); return; }
-            const filmItems = selectedFilmItems.map(item => ({ filmId: item.filmId, quantity: item.quantity }));
-            const result = await addRental(camId, start, end, base, pin, damage, ship, extraFilm, customerName, customerSocial, filmItems);
-            if (result.success) { showToast("✅ Đặt lịch thành công!"); rentalModal.style.visibility = 'hidden'; selectedFilmItems = []; }
-            else showToast(`❌ ${result.msg}`);
-        };
-        
-        const standaloneModal = document.getElementById('standaloneFilmSaleModal');
-        document.getElementById('closeStandaloneModalBtn').onclick = () => standaloneModal.style.visibility = 'hidden';
-        window.onclick = (e) => { if (e.target === standaloneModal) standaloneModal.style.visibility = 'hidden'; };
-        const addStandaloneFilmBtn = document.getElementById('addStandaloneFilmBtn');
-        if (addStandaloneFilmBtn) {
-            addStandaloneFilmBtn.onclick = () => {
-                const filmId = document.getElementById('standaloneFilmSelect').value;
-                if (filmId) {
-                    const existing = standaloneSelectedItems.find(item => item.filmId === filmId);
-                    if (existing) existing.quantity += 1;
-                    else standaloneSelectedItems.push({ filmId, quantity: 1 });
-                    renderStandaloneFilmSelection();
-                    updateStandaloneTotal();
-                }
-            };
-        }
-        document.getElementById('saveStandaloneSaleBtn').onclick = async () => {
-            const customerName = document.getElementById('standaloneCustomerName').value;
-            const customerSocial = document.getElementById('standaloneCustomerSocial').value;
-            if (!customerName.trim()) { showToast("Vui lòng nhập tên khách hàng!"); return; }
-            if (standaloneSelectedItems.length === 0) { showToast("Vui lòng chọn ít nhất một loại film!"); return; }
-            const filmItems = standaloneSelectedItems.map(item => ({ filmId: item.filmId, quantity: item.quantity }));
-            const result = await addStandaloneFilmSale(customerName, customerSocial, filmItems);
-            if (result.success) {
-                showToast("✅ Bán film thành công!");
-                standaloneModal.style.visibility = 'hidden';
-                standaloneSelectedItems = [];
-                renderFilmSales();
-            } else showToast(`❌ ${result.msg}`);
-        };
-        
-        const editModal = document.getElementById('editCameraModal');
-        document.getElementById('closeEditModalBtn').onclick = () => editModal.style.visibility = 'hidden';
-        window.onclick = (e) => { if (e.target === editModal) editModal.style.visibility = 'hidden'; };
-        document.getElementById('saveEditCameraBtn').onclick = async () => {
-            const id = document.getElementById('editCameraId').value;
-            const newName = document.getElementById('editCameraName').value;
-            if (newName.trim()) { await updateCamera(id, newName); showToast("✏️ Đã cập nhật tên máy"); editModal.style.visibility = 'hidden'; }
-            else showToast("Tên máy không được để trống");
-        };
-    }
-
-    // AUTH
+    // ======================== AUTH & KHỞI TẠO ========================
     async function register(username, password, confirmPassword) {
         if(password!==confirmPassword) throw new Error("Mật khẩu nhập lại không khớp");
         if(username.length<3) throw new Error("Tên đăng nhập phải >=3 ký tự");
@@ -1234,8 +1320,8 @@
         if (isAdmin) {
             sidebarHtml += `
                 <div class="menu-section-title">👑 QUẢN TRỊ</div>
-                <div class="menu-item" data-view="admin"><i class="fas fa-chart-pie"></i> <span>📊 Thống kê hệ thống</span></div>
-                <div class="menu-item" data-view="settings"><i class="fas fa-sliders-h"></i> <span>⚙️ Cài đặt</span></div>`;
+                <div class="menu-item" data-view="settings"><i class="fas fa-sliders-h"></i> <span>⚙️ Cài đặt</span></div>
+                <div class="menu-item" data-view="changePassword"><i class="fas fa-key"></i> <span>🔑 Đổi mật khẩu</span></div>`;
         } else {
             sidebarHtml += `
                 <div class="menu-section-title">📸 CHO THUÊ MÁY</div>
@@ -1335,7 +1421,7 @@
             });
         };
         setTimeout(attachMenu, 100);
-        setActiveView(isAdmin ? 'admin' : 'dashboard');
+        setActiveView(isAdmin ? 'settings' : 'dashboard');
     }
 
     function setActiveView(view){ currentView = view; reRenderCurrentView(); }
@@ -1377,6 +1463,89 @@
                     isLogin=true; updateForm();
                 }
             } catch(err){ showToast("Lỗi: "+err.message); }
+        };
+    }
+
+    function initModals() {
+        const rentalModal = document.getElementById('rentalModal');
+        document.getElementById('closeModalBtn').onclick = () => rentalModal.style.visibility = 'hidden';
+        window.onclick = (e) => { if (e.target === rentalModal) rentalModal.style.visibility = 'hidden'; };
+        const priceInputs = ['basePrice', 'extraPin', 'extraDamage', 'extraShipping', 'extraFilm'];
+        priceInputs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('input', updatePreviewTotal);
+        });
+        const addFilmSelectBtn = document.getElementById('addFilmSelectBtn');
+        if (addFilmSelectBtn) {
+            addFilmSelectBtn.onclick = () => {
+                const filmId = document.getElementById('filmSelect').value;
+                if (filmId) {
+                    const existing = selectedFilmItems.find(item => item.filmId === filmId);
+                    if (existing) existing.quantity += 1;
+                    else selectedFilmItems.push({ filmId, quantity: 1 });
+                    renderFilmSelection();
+                    updatePreviewTotal();
+                }
+            };
+        }
+        document.getElementById('saveRentalBtn').onclick = async () => {
+            const camId = document.getElementById('modalCameraId').value;
+            const customerName = document.getElementById('customerName').value;
+            const customerSocial = document.getElementById('customerSocial').value;
+            const start = document.getElementById('rentalStart').value;
+            const end = document.getElementById('rentalEnd').value;
+            const base = parseFloat(document.getElementById('basePrice').value) || 0;
+            const pin = parseFloat(document.getElementById('extraPin').value) || 0;
+            const damage = parseFloat(document.getElementById('extraDamage').value) || 0;
+            const ship = parseFloat(document.getElementById('extraShipping').value) || 0;
+            const extraFilm = parseFloat(document.getElementById('extraFilm').value) || 0;
+            if (!start || !end) { showToast("Vui lòng chọn thời gian!"); return; }
+            if (!customerName.trim()) { showToast("Vui lòng nhập tên khách hàng!"); return; }
+            const filmItems = selectedFilmItems.map(item => ({ filmId: item.filmId, quantity: item.quantity }));
+            const result = await addRental(camId, start, end, base, pin, damage, ship, extraFilm, customerName, customerSocial, filmItems);
+            if (result.success) { showToast("✅ Đặt lịch thành công!"); rentalModal.style.visibility = 'hidden'; selectedFilmItems = []; }
+            else showToast(`❌ ${result.msg}`);
+        };
+        
+        const standaloneModal = document.getElementById('standaloneFilmSaleModal');
+        document.getElementById('closeStandaloneModalBtn').onclick = () => standaloneModal.style.visibility = 'hidden';
+        window.onclick = (e) => { if (e.target === standaloneModal) standaloneModal.style.visibility = 'hidden'; };
+        const addStandaloneFilmBtn = document.getElementById('addStandaloneFilmBtn');
+        if (addStandaloneFilmBtn) {
+            addStandaloneFilmBtn.onclick = () => {
+                const filmId = document.getElementById('standaloneFilmSelect').value;
+                if (filmId) {
+                    const existing = standaloneSelectedItems.find(item => item.filmId === filmId);
+                    if (existing) existing.quantity += 1;
+                    else standaloneSelectedItems.push({ filmId, quantity: 1 });
+                    renderStandaloneFilmSelection();
+                    updateStandaloneTotal();
+                }
+            };
+        }
+        document.getElementById('saveStandaloneSaleBtn').onclick = async () => {
+            const customerName = document.getElementById('standaloneCustomerName').value;
+            const customerSocial = document.getElementById('standaloneCustomerSocial').value;
+            if (!customerName.trim()) { showToast("Vui lòng nhập tên khách hàng!"); return; }
+            if (standaloneSelectedItems.length === 0) { showToast("Vui lòng chọn ít nhất một loại film!"); return; }
+            const filmItems = standaloneSelectedItems.map(item => ({ filmId: item.filmId, quantity: item.quantity }));
+            const result = await addStandaloneFilmSale(customerName, customerSocial, filmItems);
+            if (result.success) {
+                showToast("✅ Bán film thành công!");
+                standaloneModal.style.visibility = 'hidden';
+                standaloneSelectedItems = [];
+                renderFilmSales();
+            } else showToast(`❌ ${result.msg}`);
+        };
+        
+        const editModal = document.getElementById('editCameraModal');
+        document.getElementById('closeEditModalBtn').onclick = () => editModal.style.visibility = 'hidden';
+        window.onclick = (e) => { if (e.target === editModal) editModal.style.visibility = 'hidden'; };
+        document.getElementById('saveEditCameraBtn').onclick = async () => {
+            const id = document.getElementById('editCameraId').value;
+            const newName = document.getElementById('editCameraName').value;
+            if (newName.trim()) { await updateCamera(id, newName); showToast("✏️ Đã cập nhật tên máy"); editModal.style.visibility = 'hidden'; }
+            else showToast("Tên máy không được để trống");
         };
     }
 
