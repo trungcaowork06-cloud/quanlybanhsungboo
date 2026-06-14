@@ -48,6 +48,7 @@
             padding: 10px 16px;
             font-size: 1rem;
             outline: none;
+            width: 100%;
         }
         .app-container { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
         .sidebar {
@@ -133,11 +134,6 @@
             white-space: nowrap;
         }
         .table-rentals th, .table-films th, .table-sales th { background: #ffecb3; font-weight: bold; color: #a35100; }
-        @media (max-width: 780px) {
-            .table-rentals th, .table-rentals td, .table-films th, .table-films td, .table-sales th, .table-sales td { padding: 8px 8px; font-size: 0.75rem; }
-            .rentals-table-wrapper, .films-table-wrapper, .film-sales-wrapper { margin: 12px -8px; border-radius: 24px; }
-            .small-btn { padding: 6px 10px; font-size: 0.7rem; min-height: 36px; }
-        }
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;
@@ -165,7 +161,6 @@
             color: #a35100;
         }
         .modal-content label i { width: 24px; font-size: 1.1rem; }
-        .modal-content input, .modal-content select { width: 100%; margin-bottom: 8px; }
         .price-grid, .film-selection {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -189,7 +184,6 @@
             font-size: 0.85rem;
         }
         .price-item .price-label i, .film-item .film-label i { font-size: 1rem; width: 20px; }
-        .price-item input, .film-item input, .film-item select { margin: 0; padding: 8px 12px; width: 100%; }
         .total-box {
             background: #ffebcc;
             border-radius: 32px;
@@ -200,7 +194,6 @@
             font-size: 1.1rem;
         }
         .flex-btns { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; }
-        @media (max-width: 560px) { .price-grid, .film-selection { grid-template-columns: 1fr; } .modal-content { padding: 20px; } }
         .toast-msg {
             position: fixed; bottom: 20px; right: 20px; background: #4caf50; color: white;
             padding: 12px 24px; border-radius: 40px; font-weight: bold; z-index: 1100;
@@ -213,25 +206,6 @@
             100% { opacity: 0; visibility: hidden;}
         }
         .small-btn { padding: 4px 12px; font-size: 0.75rem; margin: 2px; min-height: 44px; }
-        @media (max-width: 780px) {
-            .app-container { grid-template-columns: 1fr; padding-bottom: 80px; }
-            .sidebar {
-                position: fixed; bottom: 0; left: 0; right: 0; top: auto; display: flex;
-                flex-direction: row; justify-content: space-around; border-radius: 32px 32px 0 0;
-                padding: 8px 12px; border-right: none; border-top: 5px solid #ffc28c; z-index: 200;
-                background: #ffecb3;
-            }
-            .logo-area { display: none; }
-            .menu-section-title { display: none; }
-            .menu-item { flex-direction: column; gap: 4px; padding: 8px 12px; margin: 4px 0; font-size: 0.75rem; text-align: center; }
-            .menu-item i { font-size: 1.5rem; width: auto; }
-            .main-content { padding: 20px 16px 90px 16px; }
-            .dashboard-stats { flex-direction: column; }
-        }
-        footer { text-align: center; margin-top: 40px; padding: 16px; font-size: 0.8rem; color: #b97f10; clear: both; }
-        .delete-icon { cursor: pointer; color: #dc6b4a; }
-        .badge-total { font-weight: bold; color: #e67e22; }
-        .social-link { color: #3b5998; text-decoration: none; }
         .user-info {
             display: flex;
             align-items: center;
@@ -257,8 +231,168 @@
         .month-nav { display: flex; justify-content: space-between; align-items: center; margin: 16px 0; }
         .film-selector { margin-top: 16px; border-top: 2px dashed #ffcd94; padding-top: 16px; }
         .add-film-btn { margin-top: 8px; background-color: #a3e0b0; box-shadow: 0 3px 0 #488a2e; padding: 6px 12px; font-size: 0.8rem; }
-        .search-box { margin-bottom: 16px; display: flex; gap: 8px; align-items: center; }
-        .search-box input { flex: 1; }
+        .search-box { margin-bottom: 16px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .search-box input { flex: 1; min-width: 120px; }
+
+        /* ========== RESPONSIVE MOBILE CẢI TIẾN ========== */
+        @media (max-width: 780px) {
+            .app-container {
+                grid-template-columns: 1fr;
+                padding-bottom: 70px;
+            }
+            .sidebar {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                top: auto;
+                display: flex;
+                flex-direction: row;
+                justify-content: space-around;
+                align-items: center;
+                border-radius: 32px 32px 0 0;
+                padding: 8px 10px;
+                border-right: none;
+                border-top: 5px solid #ffc28c;
+                z-index: 200;
+                background: #ffecb3;
+                overflow-x: auto;
+                white-space: nowrap;
+                gap: 8px;
+            }
+            .logo-area { display: none; }
+            .menu-section-title { display: none; }
+            .menu-item {
+                flex-direction: column;
+                gap: 2px;
+                padding: 6px 10px;
+                margin: 0;
+                font-size: 0.7rem;
+                text-align: center;
+                background: transparent;
+                box-shadow: none;
+                border-radius: 40px;
+                min-width: 60px;
+            }
+            .menu-item i {
+                font-size: 1.3rem;
+                width: auto;
+                margin: 0;
+            }
+            .menu-item span {
+                font-size: 0.65rem;
+            }
+            .menu-item.active {
+                background: #ffc285;
+                color: white;
+                box-shadow: none;
+            }
+            .main-content {
+                padding: 16px 12px 80px 12px;
+            }
+            .dashboard-stats {
+                gap: 12px;
+            }
+            .stat-card {
+                min-width: 140px;
+                padding: 12px;
+            }
+            .stat-number {
+                font-size: 1.8rem;
+            }
+            .camera-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            .camera-card {
+                padding: 12px;
+            }
+            .price-grid, .film-selection {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .modal-content {
+                padding: 20px;
+                max-width: 95%;
+            }
+            .modal-content label {
+                font-size: 0.9rem;
+            }
+            .user-info {
+                padding: 6px 12px;
+                font-size: 0.85rem;
+                flex-wrap: wrap;
+            }
+            .logout-btn {
+                padding: 4px 12px;
+                font-size: 0.7rem;
+            }
+            .small-btn {
+                padding: 6px 10px;
+                font-size: 0.7rem;
+                min-height: 36px;
+            }
+            .search-box {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-box button {
+                width: 100%;
+            }
+            .table-rentals, .table-films, .table-sales {
+                min-width: 600px;
+            }
+            .rentals-table-wrapper, .films-table-wrapper, .film-sales-wrapper {
+                margin: 12px 0;
+                border-radius: 24px;
+            }
+            .total-box {
+                font-size: 0.9rem;
+            }
+            .month-nav {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .calendar-grid {
+                gap: 4px;
+            }
+            .calendar-day {
+                padding: 8px 2px;
+                font-size: 0.7rem;
+            }
+        }
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 12px 10px 80px 10px;
+            }
+            .menu-item {
+                min-width: 55px;
+                padding: 4px 6px;
+            }
+            .menu-item i {
+                font-size: 1.1rem;
+            }
+            .menu-item span {
+                font-size: 0.6rem;
+            }
+            .stat-number {
+                font-size: 1.5rem;
+            }
+            .cartoon-card {
+                padding: 12px !important;
+            }
+        }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 16px;
+            font-size: 0.8rem;
+            color: #b97f10;
+            clear: both;
+        }
+        .delete-icon { cursor: pointer; color: #dc6b4a; }
+        .badge-total { font-weight: bold; color: #e67e22; }
+        .social-link { color: #3b5998; text-decoration: none; }
     </style>
 </head>
 <body>
@@ -332,7 +466,6 @@
         });
     }
 
-    // Thống kê
     function getStats() {
         let totalRevenue = 0, totalHours = 0;
         rentals.forEach(r => { totalRevenue += r.totalRevenue; totalHours += r.totalHours; });
@@ -369,7 +502,6 @@
         return sorted.slice(0, limit);
     }
 
-    // Thống kê film
     function getFilmStats() {
         let totalFilmRevenue = 0, totalFilmQuantity = 0;
         const filmCountMap = new Map();
@@ -395,7 +527,6 @@
         return { totalFilmRevenue, totalFilmQuantity, bestFilm: bestFilm ? bestFilm.name : "Chưa có", bestQuantity };
     }
 
-    // CRUD
     async function addCamera(name) {
         if (!name.trim() || !currentUserId) return false;
         const newId = generateId();
@@ -644,7 +775,7 @@
         const filmStats = getFilmStats();
         let topHtml = '';
         if (topCustomers.length === 0) topHtml = `<div class="cartoon-card" style="padding:20px; margin-top:20px;"><h3><i class="fas fa-users"></i> 🏆 Top khách hàng</h3><div class="text-center" style="padding:20px;">✨ Chưa có dữ liệu</div></div>`;
-        else topHtml = `<div class="cartoon-card" style="padding:20px; margin-top:20px;"><h3><i class="fas fa-users"></i> 🏆 Top khách hàng</h3><div style="overflow-x:auto;"><table style="width:100%;"><thead><tr><th>#</th><th>Tên KH</th><th>Số lần</th><th>Tổng chi</th><th>LK</th></table></thead><tbody>${topCustomers.map((c,i)=>`<tr><td>${i+1}</td>}.${escapeHtml(c.name)}</td>}.${c.count}</td>}.${formatVND(c.totalSpent)}</td>}.${c.social?`<a href="${escapeHtml(c.social)}" target="_blank"><i class="fab fa-instagram"></i></a>`:'—'}</td></tr>`).join('')}</tbody></table></div></div>`;
+        else topHtml = `<div class="cartoon-card" style="padding:20px; margin-top:20px;"><h3><i class="fas fa-users"></i> 🏆 Top khách hàng</h3><div style="overflow-x:auto;"><table style="width:100%;"><thead><tr><th>#</th><th>Tên KH</th><th>Số lần</th><th>Tổng chi</th><th>LK</th></tr></thead><tbody>${topCustomers.map((c,i)=>`<tr><td>${i+1}</td>}.${escapeHtml(c.name)}</td>}.${c.count}</td>}.${formatVND(c.totalSpent)}</td>}.${c.social?`<a href="${escapeHtml(c.social)}" target="_blank"><i class="fab fa-instagram"></i></a>`:'—'}</td></tr>`).join('')}</tbody></table></div></div>`;
         const html = `
             <div class="user-info"><span><i class="fas fa-user-circle"></i> ${escapeHtml(currentUsername)}${isAdmin ? ' (Admin)' : ''}</span><button id="logoutBtn" class="logout-btn">Đăng xuất</button></div>
             <div class="cartoon-card" style="padding:24px;"><h1><i class="fas fa-chalkboard-user"></i> ${escapeHtml(appSettings.headerText)}</h1></div>
@@ -769,7 +900,7 @@
             <div class="cartoon-card" style="padding:20px; margin-bottom:24px;"><h2><i class="fas fa-plus-circle"></i> Thêm loại film mới</h2>
             <div style="display:flex; flex-wrap:wrap; gap:12px;"><input type="text" id="newFilmName" placeholder="Tên film (VD: Kodak 200)" style="flex:2"><input type="number" id="newFilmPrice" placeholder="Giá (VNĐ)" style="width:150px"><button id="addFilmBtn" class="cute-btn">Thêm film</button></div></div>
             <div class="films-table-wrapper"><table class="table-films"><thead><tr><th>Tên film</th><th>Giá bán</th><th>Đã bán (cuộn)</th><th>Doanh thu</th><th>Thao tác</th></tr></thead><tbody>`;
-        if (films.length===0) html+=`<tr><td colspan="5" class="text-center">🎈 Chưa có loại film nào</td></tr>`;
+        if (films.length===0) html+=`<tr><td colspan="5" class="text-center">🎈 Chưa có loại film nào</td></td>`;
         films.forEach(f => {
             const sales = filmSales.filter(s => s.filmId === f.id);
             const totalQty = sales.reduce((sum, s) => sum + s.quantity, 0);
@@ -848,7 +979,6 @@
         }));
     }
 
-    // Helper cho film selection (thuê máy)
     let selectedFilmItems = [];
     function renderFilmSelection() {
         const container = document.getElementById('filmItemsContainer');
@@ -904,7 +1034,6 @@
         document.getElementById('previewTotal').innerHTML = formatVND(total);
     }
     
-    // Helper cho standalone film sale
     let standaloneSelectedItems = [];
     function renderStandaloneFilmSelection() {
         const container = document.getElementById('standaloneFilmItemsContainer');
