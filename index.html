@@ -151,14 +151,8 @@
             margin-bottom: 4px;
             color: #a35100;
         }
-        .modal-content label i {
-            width: 24px;
-            font-size: 1.1rem;
-        }
-        .modal-content input, .modal-content select {
-            width: 100%;
-            margin-bottom: 8px;
-        }
+        .modal-content label i { width: 24px; font-size: 1.1rem; }
+        .modal-content input, .modal-content select { width: 100%; margin-bottom: 8px; }
         .price-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -181,15 +175,8 @@
             color: #a35100;
             font-size: 0.85rem;
         }
-        .price-item .price-label i {
-            font-size: 1rem;
-            width: 20px;
-        }
-        .price-item input {
-            margin: 0;
-            padding: 8px 12px;
-            width: 100%;
-        }
+        .price-item .price-label i { font-size: 1rem; width: 20px; }
+        .price-item input { margin: 0; padding: 8px 12px; width: 100%; }
         .total-box {
             background: #ffebcc;
             border-radius: 32px;
@@ -199,20 +186,8 @@
             font-weight: bold;
             font-size: 1.1rem;
         }
-        .flex-btns {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-            margin-top: 24px;
-        }
-        @media (max-width: 560px) {
-            .price-grid {
-                grid-template-columns: 1fr;
-            }
-            .modal-content {
-                padding: 20px;
-            }
-        }
+        .flex-btns { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; }
+        @media (max-width: 560px) { .price-grid { grid-template-columns: 1fr; } .modal-content { padding: 20px; } }
         .toast-msg {
             position: fixed; bottom: 20px; right: 20px; background: #4caf50; color: white;
             padding: 12px 24px; border-radius: 40px; font-weight: bold; z-index: 1100;
@@ -239,14 +214,7 @@
             .main-content { padding: 20px 16px 90px 16px; }
             .dashboard-stats { flex-direction: column; }
         }
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            padding: 16px;
-            font-size: 0.8rem;
-            color: #b97f10;
-            clear: both;
-        }
+        footer { text-align: center; margin-top: 40px; padding: 16px; font-size: 0.8rem; color: #b97f10; clear: both; }
         .delete-icon { cursor: pointer; color: #dc6b4a; }
         .badge-total { font-weight: bold; color: #e67e22; }
         .social-link { color: #3b5998; text-decoration: none; }
@@ -261,33 +229,13 @@
             box-shadow: 0 3px 8px rgba(0,0,0,0.05);
         }
         .user-info span { font-weight: bold; color: #a35100; }
-        .logout-btn {
-            background-color: #ffaeae;
-            box-shadow: 0 3px 0 #b34141;
-            padding: 4px 16px;
-            font-size: 0.8rem;
-        }
-        .auth-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
+        .logout-btn { background-color: #ffaeae; box-shadow: 0 3px 0 #b34141; padding: 4px 16px; font-size: 0.8rem; }
+        .auth-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
         .auth-card { max-width: 400px; width: 100%; padding: 32px; }
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 8px;
-            margin-top: 16px;
-        }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 16px; }
         .calendar-day {
-            background: #fff5e6;
-            border-radius: 20px;
-            padding: 12px 6px;
-            text-align: center;
-            font-size: 0.85rem;
-            border: 1px solid #ffcd94;
+            background: #fff5e6; border-radius: 20px; padding: 12px 6px; text-align: center;
+            font-size: 0.85rem; border: 1px solid #ffcd94;
         }
         .calendar-day.rented { background: #ffaeae; color: white; text-decoration: line-through; }
         .calendar-day.today { border: 3px solid #ffb347; font-weight: bold; }
@@ -437,10 +385,26 @@
         await remove(ref(db, `users/${currentUserId}/rentals/${rentalId}`));
         return true;
     }
-    async function updateSettings(newSettings) {
-        if (!currentUserId) return;
-        await update(ref(db, `users/${currentUserId}/settings`), newSettings);
-        if (isAdmin) await update(ref(db, `global_settings`), newSettings);
+
+    async function updateGlobalSettings(newSettings) {
+        if (!isAdmin) return;
+        await update(ref(db, `global_settings`), newSettings);
+    }
+
+    function subscribeGlobalSettings() {
+        const globalRef = ref(db, `global_settings`);
+        onValue(globalRef, (snap) => {
+            const data = snap.val();
+            if (data) {
+                appSettings = { ...appSettings, ...data };
+            } else {
+                set(ref(db, `global_settings`), appSettings);
+            }
+            document.title = appSettings.siteTitle;
+            const titleEl = document.getElementById('dynamicTitle');
+            if (titleEl) titleEl.innerHTML = `<i class="fas fa-camera-retro"></i> ${appSettings.siteTitle}`;
+            reRenderCurrentView();
+        });
     }
 
     function subscribeUserData() {
@@ -455,21 +419,6 @@
             rentals = data ? Object.entries(data).map(([k,v]) => ({ id: k, ...v })) : [];
             reRenderCurrentView();
         });
-        onValue(ref(db, `users/${currentUserId}/settings`), (snap) => {
-            const data = snap.val();
-            if (data) appSettings = { ...appSettings, ...data };
-            else set(ref(db, `users/${currentUserId}/settings`), appSettings);
-            document.title = appSettings.siteTitle;
-            const titleEl = document.getElementById('dynamicTitle');
-            if (titleEl) titleEl.innerHTML = `<i class="fas fa-camera-retro"></i> ${appSettings.siteTitle}`;
-            reRenderCurrentView();
-        });
-        if (isAdmin) {
-            onValue(ref(db, `global_settings`), (snap) => {
-                const data = snap.val();
-                if (data) { appSettings = { ...appSettings, ...data }; document.title = appSettings.siteTitle; const titleEl = document.getElementById('dynamicTitle'); if(titleEl) titleEl.innerHTML = `<i class="fas fa-camera-retro"></i> ${appSettings.siteTitle}`; reRenderCurrentView(); }
-            });
-        }
     }
 
     function reRenderCurrentView() {
@@ -483,7 +432,6 @@
         else renderDashboard();
     }
 
-    // Calendar
     function renderCalendar() {
         if (!cameras.length) {
             document.getElementById('mainContent').innerHTML = `<div class="cartoon-card" style="padding:20px; text-align:center">🎈 Chưa có máy ảnh nào. Hãy thêm máy trước.</div>`;
@@ -526,14 +474,13 @@
         document.getElementById('nextMonthBtn')?.addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1); renderCalendar(); });
     }
 
-    // Render Dashboard
     function renderDashboard() {
         const stats = getStats();
         const most = getMostRentedCamera();
         const topCustomers = getTopCustomers(5);
         let topHtml = '';
         if (topCustomers.length === 0) topHtml = `<div class="cartoon-card" style="padding:20px; margin-top:20px;"><h3><i class="fas fa-users"></i> 🏆 Top khách hàng</h3><div class="text-center" style="padding:20px;">✨ Chưa có dữ liệu</div></div>`;
-        else topHtml = `<div class="cartoon-card" style="padding:20px; margin-top:20px;"><h3><i class="fas fa-users"></i> 🏆 Top khách hàng</h3><div style="overflow-x:auto;"><table style="width:100%;"><thead><tr><th>#</th><th>Tên KH</th><th>Số lần</th><th>Tổng chi</th><th>LK</th></tr></thead><tbody>${topCustomers.map((c,i)=>`<tr><td>${i+1}</td>}.${escapeHtml(c.name)}</td>}.${c.count}</td>}.${formatVND(c.totalSpent)}</td>}.${c.social?`<a href="${escapeHtml(c.social)}" target="_blank"><i class="fab fa-instagram"></i></a>`:'—'}</td></table>`).join('')}</tbody></table></div></div>`;
+        else topHtml = `<div class="cartoon-card" style="padding:20px; margin-top:20px;"><h3><i class="fas fa-users"></i> 🏆 Top khách hàng</h3><div style="overflow-x:auto;"><table style="width:100%;"><thead><tr><th>#</th><th>Tên KH</th><th>Số lần</th><th>Tổng chi</th><th>LK</th></tr></thead><tbody>${topCustomers.map((c,i)=>`<tr><td>${i+1}</td>}.${escapeHtml(c.name)}</td>}.${c.count}</td>}.${formatVND(c.totalSpent)}</td>}.${c.social?`<a href="${escapeHtml(c.social)}" target="_blank"><i class="fab fa-instagram"></i></a>`:'—'}</td></tr>`).join('')}</tbody></table></div></div>`;
         const html = `
             <div class="user-info"><span><i class="fas fa-user-circle"></i> ${escapeHtml(currentUsername)}${isAdmin ? ' (Admin)' : ''}</span><button id="logoutBtn" class="logout-btn">Đăng xuất</button></div>
             <div class="cartoon-card" style="padding:24px;"><h1><i class="fas fa-chalkboard-user"></i> ${escapeHtml(appSettings.headerText)}</h1></div>
@@ -594,8 +541,8 @@
     function renderAllRentals() {
         let html = `<div class="user-info"><span><i class="fas fa-user-circle"></i> ${escapeHtml(currentUsername)}${isAdmin ? ' (Admin)' : ''}</span><button id="logoutBtn" class="logout-btn">Đăng xuất</button></div>
             <div class="cartoon-card" style="padding:20px;"><h2>📋 Toàn bộ lịch sử cho thuê</h2></div>
-            <div class="rentals-table-wrapper"><table class="table-rentals"><thead><tr><th>Khách</th><th>Social</th><th>Máy</th><th>TG thuê</th><th>Giờ</th><th>Giá thuê</th><th>Pin</th><th>Hỏng</th><th>Ship</th><th>Tráng phim</th><th>Tổng</th><th>Xoá</th></td></thead><tbody>`;
-        if (rentals.length===0) html+=`<tr><td colspan="12" class="text-center">🎈 Chưa có lịch thuê</td></tr>`;
+            <div class="rentals-table-wrapper"><table class="table-rentals"><thead><tr><th>Khách</th><th>Social</th><th>Máy</th><th>TG thuê</th><th>Giờ</th><th>Giá thuê</th><th>Pin</th><th>Hỏng</th><th>Ship</th><th>Tráng phim</th><th>Tổng</th><th>Xoá</th></tr></thead><tbody>`;
+        if (rentals.length===0) html+=`<tr><td colspan="12" class="text-center">🎈 Chưa có lịch thuê</td></td>`;
         [...rentals].sort((a,b)=>new Date(b.startTime)-new Date(a.startTime)).forEach(r=>{
             html+=`<tr>
                 <td><strong>${escapeHtml(r.customerName||'—')}</strong></td>
@@ -618,10 +565,9 @@
         document.querySelectorAll('.deleteRentalGlobal').forEach(btn=>btn.addEventListener('click',async()=>{ if(confirm("Xóa lịch thuê?")){ await deleteRental(btn.dataset.id); showToast("Đã xóa"); } }));
     }
 
-    // Admin settings
     function renderSettings() {
         let html = `<div class="user-info"><span><i class="fas fa-user-cog"></i> ${escapeHtml(currentUsername)} (Admin)</span><button id="logoutBtn" class="logout-btn">Đăng xuất</button></div>
-            <div class="cartoon-card" style="padding:28px; margin-bottom:20px;"><h2><i class="fas fa-palette"></i> Cài đặt giao diện</h2>
+            <div class="cartoon-card" style="padding:28px; margin-bottom:20px;"><h2><i class="fas fa-palette"></i> Cài đặt giao diện (toàn hệ thống)</h2>
             <div><label>🏷️ Tiêu đề trang:</label><input type="text" id="setTitle" value="${escapeHtml(appSettings.siteTitle)}">
             <label>📢 Header chính:</label><input type="text" id="setHeader" value="${escapeHtml(appSettings.headerText)}">
             <label>📌 Footer:</label><input type="text" id="setFooter" value="${escapeHtml(appSettings.footerText)}">
@@ -635,8 +581,13 @@
         document.getElementById('mainContent').innerHTML = html;
         document.getElementById('logoutBtn')?.addEventListener('click',()=>logout());
         document.getElementById('saveSettingsBtn')?.addEventListener('click',async()=>{
-            await updateSettings({ siteTitle: document.getElementById('setTitle').value, headerText: document.getElementById('setHeader').value, footerText: document.getElementById('setFooter').value });
-            showToast("✅ Cập nhật giao diện thành công!");
+            const newSettings = {
+                siteTitle: document.getElementById('setTitle').value,
+                headerText: document.getElementById('setHeader').value,
+                footerText: document.getElementById('setFooter').value
+            };
+            await updateGlobalSettings(newSettings);
+            showToast("✅ Cập nhật giao diện toàn hệ thống thành công!");
         });
         document.getElementById('changePasswordBtn')?.addEventListener('click',async()=>{
             const old=document.getElementById('oldPassword').value, newPw=document.getElementById('newPassword').value, confirm=document.getElementById('confirmNewPassword').value;
@@ -681,7 +632,6 @@
         document.getElementById('logoutBtn')?.addEventListener('click',()=>logout());
     }
 
-    // Modal helpers with improved UI
     function updatePreviewTotal() {
         const base = parseFloat(document.getElementById('basePrice').value) || 0;
         const pin = parseFloat(document.getElementById('extraPin').value) || 0;
@@ -729,7 +679,6 @@
         };
     }
 
-    // AUTH
     async function register(username, password, confirmPassword) {
         if(password!==confirmPassword) throw new Error("Mật khẩu nhập lại không khớp");
         if(username.length<3) throw new Error("Tên đăng nhập phải >=3 ký tự");
@@ -741,9 +690,9 @@
         const isAdminFlag=(username==='admin');
         await set(ref(db,`users_meta/${username}`),{ userId, password:hashed, isAdmin:isAdminFlag });
         await set(ref(db,`user_profiles/${userId}`),{ username });
-        await set(ref(db,`users/${userId}/settings`),appSettings);
         return userId;
     }
+
     async function login(username, password) {
         const userRef=ref(db,`users_meta/${username}`);
         const snap=await get(userRef);
@@ -752,6 +701,7 @@
         if(data.password!==hashPassword(password)) throw new Error("Sai mật khẩu");
         return { userId:data.userId, isAdmin:data.isAdmin===true };
     }
+
     function logout() {
         localStorage.removeItem("banhsungboo_userId");
         localStorage.removeItem("banhsungboo_username");
@@ -759,6 +709,7 @@
         currentUserId=null; currentUsername=null; isAdmin=false;
         renderAuthForm();
     }
+
     async function ensureAdminAccount() {
         const adminRef=ref(db,`users_meta/admin`);
         const snap=await get(adminRef);
@@ -770,7 +721,6 @@
         }
     }
 
-    // Start app with improved modal HTML (with text labels for each price)
     function startApp() {
         let sidebarHtml = `<div class="sidebar">
             <div class="logo-area"><h2 id="dynamicTitle"><i class="fas fa-camera-retro"></i> Banhsungboo</h2></div>
@@ -784,54 +734,29 @@
         }
         sidebarHtml += `</div><div class="main-content" id="mainContent"></div>`;
         
-        // Modal with clear text labels for each cost type
         const modalHtml = `
             <div id="rentalModal" class="modal-overlay">
                 <div class="modal-content">
                     <h3 style="text-align:center; margin-bottom:16px;"><i class="fas fa-calendar-plus"></i> Đặt lịch thuê máy</h3>
                     <p id="modalCameraName" style="text-align:center; font-weight:bold; background:#ffe6b3; padding:8px; border-radius:40px;"></p>
                     <input type="hidden" id="modalCameraId">
-                    
                     <label><i class="fas fa-user"></i> Tên khách hàng *</label>
                     <input type="text" id="customerName" placeholder="Nhập tên khách hàng">
-                    
                     <label><i class="fab fa-instagram"></i> Instagram / Facebook (link)</label>
                     <input type="url" id="customerSocial" placeholder="https://instagram.com/...">
-                    
                     <label><i class="fas fa-calendar-alt"></i> Thời gian bắt đầu</label>
                     <input type="datetime-local" id="rentalStart">
-                    
                     <label><i class="fas fa-calendar-check"></i> Thời gian kết thúc</label>
                     <input type="datetime-local" id="rentalEnd">
-                    
                     <div style="margin:16px 0 8px; font-weight:bold; text-align:center;">💰 Các khoản chi phí (VNĐ)</div>
                     <div class="price-grid">
-                        <div class="price-item">
-                            <div class="price-label"><i class="fas fa-money-bill-wave"></i> Giá thuê cơ bản</div>
-                            <input type="number" id="basePrice" value="0" placeholder="0">
-                        </div>
-                        <div class="price-item">
-                            <div class="price-label"><i class="fas fa-battery-full"></i> Pin dự phòng</div>
-                            <input type="number" id="extraPin" value="0" placeholder="0">
-                        </div>
-                        <div class="price-item">
-                            <div class="price-label"><i class="fas fa-tools"></i> Hỏng / sửa máy</div>
-                            <input type="number" id="extraDamage" value="0" placeholder="0">
-                        </div>
-                        <div class="price-item">
-                            <div class="price-label"><i class="fas fa-shipping-fast"></i> Phí ship</div>
-                            <input type="number" id="extraShipping" value="0" placeholder="0">
-                        </div>
-                        <div class="price-item">
-                            <div class="price-label"><i class="fas fa-film"></i> Tráng phim</div>
-                            <input type="number" id="extraFilm" value="0" placeholder="0">
-                        </div>
+                        <div class="price-item"><div class="price-label"><i class="fas fa-money-bill-wave"></i> Giá thuê cơ bản</div><input type="number" id="basePrice" value="0" placeholder="0"></div>
+                        <div class="price-item"><div class="price-label"><i class="fas fa-battery-full"></i> Pin dự phòng</div><input type="number" id="extraPin" value="0" placeholder="0"></div>
+                        <div class="price-item"><div class="price-label"><i class="fas fa-tools"></i> Hỏng / sửa máy</div><input type="number" id="extraDamage" value="0" placeholder="0"></div>
+                        <div class="price-item"><div class="price-label"><i class="fas fa-shipping-fast"></i> Phí ship</div><input type="number" id="extraShipping" value="0" placeholder="0"></div>
+                        <div class="price-item"><div class="price-label"><i class="fas fa-film"></i> Tráng phim</div><input type="number" id="extraFilm" value="0" placeholder="0"></div>
                     </div>
-                    
-                    <div class="total-box">
-                        <i class="fas fa-calculator"></i> Tổng doanh thu: <strong id="previewTotal">0 VNĐ</strong>
-                    </div>
-                    
+                    <div class="total-box"><i class="fas fa-calculator"></i> Tổng doanh thu: <strong id="previewTotal">0 VNĐ</strong></div>
                     <div class="flex-btns">
                         <button id="saveRentalBtn" class="cute-btn btn-success"><i class="fas fa-save"></i> Lưu hợp đồng</button>
                         <button id="closeModalBtn" class="cute-btn"><i class="fas fa-times"></i> Hủy</button>
@@ -854,6 +779,7 @@
         document.getElementById('appRoot').innerHTML = `<div class="app-container">${sidebarHtml}</div>${modalHtml}`;
         
         initModals();
+        subscribeGlobalSettings();
         subscribeUserData();
         const attachMenu = () => {
             document.querySelectorAll('.menu-item').forEach(item => {
