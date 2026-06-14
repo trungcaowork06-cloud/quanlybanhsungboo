@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
-    <title>Banhsungboo - Quản lý cho thuê máy ảnh</title>
-    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+    <title>Banhsungboo - Quản lý cho thuê & bán film</title>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Comic+Neue:wght@400;700&family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Comic Neue', 'Baloo 2', cursive;
+            font-family: 'Comic Neue', 'Be Vietnam Pro', cursive;
             background: #fef7e8;
             background-image: radial-gradient(circle at 10% 20%, #fff3db 2%, #ffe6b3 90%);
             min-height: 100vh;
             color: #3b2a1f;
+            transition: font-family 0.2s;
         }
         .cartoon-card {
             background: #fffaf0;
@@ -24,7 +25,7 @@
             transition: 0.2s;
         }
         button, .cute-btn {
-            font-family: 'Baloo 2', cursive;
+            font-family: inherit;
             background-color: #ffd966;
             border: none;
             border-radius: 60px;
@@ -40,7 +41,7 @@
         .btn-danger { background-color: #ffaeae; box-shadow: 0 5px 0 #b34141; }
         .btn-success { background-color: #a3e0b0; box-shadow: 0 5px 0 #488a2e; }
         input, select {
-            font-family: 'Comic Neue', monospace;
+            font-family: inherit;
             background: #fffff0;
             border: 3px solid #ffcd94;
             border-radius: 28px;
@@ -65,25 +66,37 @@
             color: white;
             text-shadow: 3px 3px 0 #a35100;
         }
+        .menu-section-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: #a35100;
+            margin: 16px 0 8px 12px;
+            letter-spacing: 1px;
+        }
         .menu-item {
             display: flex;
             align-items: center;
             gap: 15px;
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             font-weight: bold;
-            padding: 14px 20px;
-            margin: 12px 0;
+            padding: 12px 20px;
+            margin: 6px 0;
             border-radius: 60px;
             cursor: pointer;
             background: #fff2db;
             border: 2px solid transparent;
+            transition: 0.1s;
         }
-        .menu-item i { font-size: 1.8rem; width: 32px; }
+        .menu-item i { font-size: 1.4rem; width: 32px; }
         .menu-item.active {
             background: #ffc285;
             border-color: #f57c00;
             color: white;
             box-shadow: 5px 5px 0 #bd6b1e;
+        }
+        .menu-item:hover:not(.active) {
+            background: #ffe1ac;
+            transform: scale(0.98);
         }
         .main-content { padding: 30px 24px; overflow-x: auto; }
         .dashboard-stats { display: flex; flex-wrap: wrap; gap: 24px; margin-bottom: 32px; }
@@ -99,30 +112,30 @@
             background: #fff5e6; border-radius: 28px; padding: 8px 12px; margin: 8px 0;
             display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; font-size: 0.85rem;
         }
-        .rentals-table-wrapper {
+        .rentals-table-wrapper, .films-table-wrapper, .film-sales-wrapper {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
             margin: 20px 0;
             border-radius: 32px;
             background: #fffef7;
         }
-        .table-rentals {
+        .table-rentals, .table-films, .table-sales {
             width: 100%;
             border-collapse: collapse;
             background: #fffef7;
             border-radius: 32px;
             min-width: 800px;
         }
-        .table-rentals th, .table-rentals td {
+        .table-rentals th, .table-rentals td, .table-films th, .table-films td, .table-sales th, .table-sales td {
             padding: 12px 10px;
             border-bottom: 2px solid #ffe0b5;
             text-align: left;
             white-space: nowrap;
         }
-        .table-rentals th { background: #ffecb3; font-weight: bold; color: #a35100; }
+        .table-rentals th, .table-films th, .table-sales th { background: #ffecb3; font-weight: bold; color: #a35100; }
         @media (max-width: 780px) {
-            .table-rentals th, .table-rentals td { padding: 8px 8px; font-size: 0.75rem; }
-            .rentals-table-wrapper { margin: 12px -8px; border-radius: 24px; }
+            .table-rentals th, .table-rentals td, .table-films th, .table-films td, .table-sales th, .table-sales td { padding: 8px 8px; font-size: 0.75rem; }
+            .rentals-table-wrapper, .films-table-wrapper, .film-sales-wrapper { margin: 12px -8px; border-radius: 24px; }
             .small-btn { padding: 6px 10px; font-size: 0.7rem; min-height: 36px; }
         }
         .modal-overlay {
@@ -136,7 +149,7 @@
             border-radius: 56px;
             padding: 28px;
             width: 100%;
-            max-width: 600px;
+            max-width: 700px;
             border: 4px solid #ffb85e;
             box-shadow: 20px 20px 0 #ba7a2e;
             max-height: 90vh;
@@ -153,13 +166,13 @@
         }
         .modal-content label i { width: 24px; font-size: 1.1rem; }
         .modal-content input, .modal-content select { width: 100%; margin-bottom: 8px; }
-        .price-grid {
+        .price-grid, .film-selection {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 12px;
             margin: 16px 0;
         }
-        .price-item {
+        .price-item, .film-item {
             background: #fff5e6;
             border-radius: 24px;
             padding: 8px 12px;
@@ -167,7 +180,7 @@
             flex-direction: column;
             gap: 6px;
         }
-        .price-item .price-label {
+        .price-item .price-label, .film-item .film-label {
             display: flex;
             align-items: center;
             gap: 8px;
@@ -175,8 +188,8 @@
             color: #a35100;
             font-size: 0.85rem;
         }
-        .price-item .price-label i { font-size: 1rem; width: 20px; }
-        .price-item input { margin: 0; padding: 8px 12px; width: 100%; }
+        .price-item .price-label i, .film-item .film-label i { font-size: 1rem; width: 20px; }
+        .price-item input, .film-item input, .film-item select { margin: 0; padding: 8px 12px; width: 100%; }
         .total-box {
             background: #ffebcc;
             border-radius: 32px;
@@ -187,7 +200,7 @@
             font-size: 1.1rem;
         }
         .flex-btns { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; }
-        @media (max-width: 560px) { .price-grid { grid-template-columns: 1fr; } .modal-content { padding: 20px; } }
+        @media (max-width: 560px) { .price-grid, .film-selection { grid-template-columns: 1fr; } .modal-content { padding: 20px; } }
         .toast-msg {
             position: fixed; bottom: 20px; right: 20px; background: #4caf50; color: white;
             padding: 12px 24px; border-radius: 40px; font-weight: bold; z-index: 1100;
@@ -209,6 +222,7 @@
                 background: #ffecb3;
             }
             .logo-area { display: none; }
+            .menu-section-title { display: none; }
             .menu-item { flex-direction: column; gap: 4px; padding: 8px 12px; margin: 4px 0; font-size: 0.75rem; text-align: center; }
             .menu-item i { font-size: 1.5rem; width: auto; }
             .main-content { padding: 20px 16px 90px 16px; }
@@ -241,6 +255,10 @@
         .calendar-day.today { border: 3px solid #ffb347; font-weight: bold; }
         .calendar-header { text-align: center; font-weight: bold; background: #ffe6b3; border-radius: 20px; padding: 8px; }
         .month-nav { display: flex; justify-content: space-between; align-items: center; margin: 16px 0; }
+        .film-selector { margin-top: 16px; border-top: 2px dashed #ffcd94; padding-top: 16px; }
+        .add-film-btn { margin-top: 8px; background-color: #a3e0b0; box-shadow: 0 3px 0 #488a2e; padding: 6px 12px; font-size: 0.8rem; }
+        .search-box { margin-bottom: 16px; display: flex; gap: 8px; align-items: center; }
+        .search-box input { flex: 1; }
     </style>
 </head>
 <body>
@@ -269,11 +287,21 @@
     let isAdmin = false;
     let cameras = [];
     let rentals = [];
-    let appSettings = { siteTitle: "Banhsungboo Pro", headerText: "📸 Cho thuê máy ảnh - Banhsungboo", footerText: "© 2026 Banhsungboo - Thỏa sức sáng tạo" };
+    let films = [];
+    let filmSales = [];
+    let standaloneFilmSales = [];
+    
+    let appSettings = { 
+        siteTitle: "Banhsungboo Pro", 
+        headerText: "📸 Cho thuê máy ảnh & Bán film", 
+        footerText: "© 2026 Banhsungboo - Thỏa sức sáng tạo",
+        fontFamily: "'Comic Neue', 'Be Vietnam Pro', cursive"
+    };
     let currentView = 'dashboard';
     let revenueChart = null;
     let selectedCameraForCalendar = null;
     let currentCalendarDate = new Date();
+    let rentalSearchKeyword = '';
 
     function generateId() { return Date.now() + '-' + Math.random().toString(36).substr(2, 8); }
     function formatVND(amount) { return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount); }
@@ -304,6 +332,7 @@
         });
     }
 
+    // Thống kê
     function getStats() {
         let totalRevenue = 0, totalHours = 0;
         rentals.forEach(r => { totalRevenue += r.totalRevenue; totalHours += r.totalHours; });
@@ -340,6 +369,33 @@
         return sorted.slice(0, limit);
     }
 
+    // Thống kê film
+    function getFilmStats() {
+        let totalFilmRevenue = 0, totalFilmQuantity = 0;
+        const filmCountMap = new Map();
+        filmSales.forEach(sale => {
+            const film = films.find(f => f.id === sale.filmId);
+            const filmName = film ? film.name : "Film đã xóa";
+            totalFilmRevenue += sale.revenue;
+            totalFilmQuantity += sale.quantity;
+            if (!filmCountMap.has(sale.filmId)) {
+                filmCountMap.set(sale.filmId, { name: filmName, quantity: 0, revenue: 0 });
+            }
+            const entry = filmCountMap.get(sale.filmId);
+            entry.quantity += sale.quantity;
+            entry.revenue += sale.revenue;
+        });
+        let bestFilm = null, bestQuantity = 0;
+        for (let [_, data] of filmCountMap) {
+            if (data.quantity > bestQuantity) {
+                bestQuantity = data.quantity;
+                bestFilm = data;
+            }
+        }
+        return { totalFilmRevenue, totalFilmQuantity, bestFilm: bestFilm ? bestFilm.name : "Chưa có", bestQuantity };
+    }
+
+    // CRUD
     async function addCamera(name) {
         if (!name.trim() || !currentUserId) return false;
         const newId = generateId();
@@ -358,7 +414,8 @@
         await update(ref(db, `users/${currentUserId}/cameras/${cameraId}`), { name: newName.trim() });
         return true;
     }
-    async function addRental(cameraId, startISO, endISO, basePrice, extraPin, extraDamage, extraShipping, extraFilm, customerName, customerSocial) {
+    
+    async function addRental(cameraId, startISO, endISO, basePrice, extraPin, extraDamage, extraShipping, extraFilm, customerName, customerSocial, filmItems) {
         if (!currentUserId) return { success: false, msg: "Chưa đăng nhập" };
         const camera = cameras.find(c => c.id === cameraId);
         if (!camera) return { success: false, msg: "Máy ảnh không tồn tại" };
@@ -369,37 +426,118 @@
         if (end <= start) return { success: false, msg: "Kết thúc phải sau bắt đầu" };
         if (isOverlap(cameraId, startISO, endISO)) return { success: false, msg: "❌ Thời gian bị trùng với lịch thuê khác!" };
         const hours = (end - start) / 3600000;
-        const totalRevenue = basePrice + extraPin + extraDamage + extraShipping + extraFilm;
-        const newId = generateId();
+        let rentalTotal = basePrice + extraPin + extraDamage + extraShipping + extraFilm;
+        let filmTotal = 0;
+        for (let item of filmItems) {
+            const film = films.find(f => f.id === item.filmId);
+            if (film) filmTotal += film.price * item.quantity;
+        }
+        const totalRevenue = rentalTotal + filmTotal;
+        const newRentalId = generateId();
         const rentalData = {
             cameraId, cameraName: camera.name,
             startTime: start.toISOString(), endTime: end.toISOString(),
             totalHours: hours, basePrice, extraPin, extraDamage, extraShipping, extraFilm,
             totalRevenue, customerName: customerName.trim(), customerSocial: customerSocial.trim() || ""
         };
-        await set(ref(db, `users/${currentUserId}/rentals/${newId}`), rentalData);
+        await set(ref(db, `users/${currentUserId}/rentals/${newRentalId}`), rentalData);
+        for (let item of filmItems) {
+            if (item.quantity > 0) {
+                const film = films.find(f => f.id === item.filmId);
+                if (film) {
+                    const saleId = generateId();
+                    const saleData = {
+                        rentalId: newRentalId,
+                        filmId: item.filmId,
+                        quantity: item.quantity,
+                        revenue: film.price * item.quantity,
+                        customerName: customerName.trim(),
+                        customerSocial: customerSocial.trim() || "",
+                        saleDate: new Date().toISOString()
+                    };
+                    await set(ref(db, `users/${currentUserId}/filmSales/${saleId}`), saleData);
+                }
+            }
+        }
         return { success: true };
     }
+    
+    async function addStandaloneFilmSale(customerName, customerSocial, filmItems) {
+        if (!currentUserId) return { success: false, msg: "Chưa đăng nhập" };
+        if (!customerName.trim()) return { success: false, msg: "Vui lòng nhập tên khách hàng" };
+        let filmTotal = 0;
+        for (let item of filmItems) {
+            const film = films.find(f => f.id === item.filmId);
+            if (film) filmTotal += film.price * item.quantity;
+        }
+        if (filmTotal === 0) return { success: false, msg: "Vui lòng chọn ít nhất một loại film" };
+        for (let item of filmItems) {
+            if (item.quantity > 0) {
+                const film = films.find(f => f.id === item.filmId);
+                if (film) {
+                    const saleId = generateId();
+                    const saleData = {
+                        rentalId: null,
+                        filmId: item.filmId,
+                        quantity: item.quantity,
+                        revenue: film.price * item.quantity,
+                        customerName: customerName.trim(),
+                        customerSocial: customerSocial.trim() || "",
+                        saleDate: new Date().toISOString()
+                    };
+                    await set(ref(db, `users/${currentUserId}/filmSales/${saleId}`), saleData);
+                }
+            }
+        }
+        return { success: true };
+    }
+    
     async function deleteRental(rentalId) {
         if (!currentUserId) return false;
+        const salesToDelete = filmSales.filter(s => s.rentalId === rentalId);
+        for (let sale of salesToDelete) await remove(ref(db, `users/${currentUserId}/filmSales/${sale.id}`));
         await remove(ref(db, `users/${currentUserId}/rentals/${rentalId}`));
+        return true;
+    }
+    
+    async function deleteFilmSale(saleId) {
+        if (!currentUserId) return false;
+        await remove(ref(db, `users/${currentUserId}/filmSales/${saleId}`));
+        return true;
+    }
+    
+    async function addFilm(name, price) {
+        if (!name.trim() || price <= 0 || !currentUserId) return false;
+        const newId = generateId();
+        await set(ref(db, `users/${currentUserId}/films/${newId}`), { name: name.trim(), price: price });
+        return true;
+    }
+    async function deleteFilm(filmId) {
+        if (!currentUserId) return false;
+        const hasSales = filmSales.some(s => s.filmId === filmId);
+        if (hasSales && !confirm("⚠️ Film đã có trong lịch sử bán. Xóa sẽ giữ lịch sử. Tiếp tục?")) return false;
+        await remove(ref(db, `users/${currentUserId}/films/${filmId}`));
+        return true;
+    }
+    async function updateFilm(filmId, newName, newPrice) {
+        if (!currentUserId) return false;
+        await update(ref(db, `users/${currentUserId}/films/${filmId}`), { name: newName.trim(), price: newPrice });
         return true;
     }
 
     async function updateGlobalSettings(newSettings) {
         if (!isAdmin) return;
         await update(ref(db, `global_settings`), newSettings);
+        if (newSettings.fontFamily) document.body.style.fontFamily = newSettings.fontFamily;
     }
 
     function subscribeGlobalSettings() {
-        const globalRef = ref(db, `global_settings`);
-        onValue(globalRef, (snap) => {
+        onValue(ref(db, `global_settings`), (snap) => {
             const data = snap.val();
             if (data) {
                 appSettings = { ...appSettings, ...data };
-            } else {
-                set(ref(db, `global_settings`), appSettings);
-            }
+                if (appSettings.fontFamily) document.body.style.fontFamily = appSettings.fontFamily;
+            } else set(ref(db, `global_settings`), appSettings);
             document.title = appSettings.siteTitle;
             const titleEl = document.getElementById('dynamicTitle');
             if (titleEl) titleEl.innerHTML = `<i class="fas fa-camera-retro"></i> ${appSettings.siteTitle}`;
@@ -407,16 +545,32 @@
         });
     }
 
+    function updateFilmSelects() {
+        const options = films.map(f => `<option value="${f.id}">${escapeHtml(f.name)} - ${formatVND(f.price)}</option>`).join('');
+        const filmSelect = document.getElementById('filmSelect');
+        if (filmSelect) filmSelect.innerHTML = options || '<option>Chưa có film</option>';
+        const standaloneSelect = document.getElementById('standaloneFilmSelect');
+        if (standaloneSelect) standaloneSelect.innerHTML = options || '<option>Chưa có film</option>';
+    }
+
     function subscribeUserData() {
         if (!currentUserId) return;
         onValue(ref(db, `users/${currentUserId}/cameras`), (snap) => {
-            const data = snap.val();
-            cameras = data ? Object.entries(data).map(([k,v]) => ({ id: k, name: v.name })) : [];
+            cameras = snap.val() ? Object.entries(snap.val()).map(([k,v]) => ({ id: k, name: v.name })) : [];
             reRenderCurrentView();
         });
         onValue(ref(db, `users/${currentUserId}/rentals`), (snap) => {
-            const data = snap.val();
-            rentals = data ? Object.entries(data).map(([k,v]) => ({ id: k, ...v })) : [];
+            rentals = snap.val() ? Object.entries(snap.val()).map(([k,v]) => ({ id: k, ...v })) : [];
+            reRenderCurrentView();
+        });
+        onValue(ref(db, `users/${currentUserId}/films`), (snap) => {
+            films = snap.val() ? Object.entries(snap.val()).map(([k,v]) => ({ id: k, name: v.name, price: v.price })) : [];
+            updateFilmSelects();
+            reRenderCurrentView();
+        });
+        onValue(ref(db, `users/${currentUserId}/filmSales`), (snap) => {
+            filmSales = snap.val() ? Object.entries(snap.val()).map(([k,v]) => ({ id: k, ...v })) : [];
+            standaloneFilmSales = filmSales.filter(s => !s.rentalId);
             reRenderCurrentView();
         });
     }
@@ -426,12 +580,20 @@
         if (currentView === 'dashboard') renderDashboard();
         else if (currentView === 'cameras') renderCameras();
         else if (currentView === 'rentals') renderAllRentals();
+        else if (currentView === 'films') renderFilms();
+        else if (currentView === 'filmSales') renderFilmSales();
         else if (currentView === 'calendar') renderCalendar();
         else if (currentView === 'settings' && isAdmin) renderSettings();
         else if (currentView === 'admin' && isAdmin) renderAdminDashboard();
+        else if (isAdmin) renderAdminDashboard();
         else renderDashboard();
+        document.querySelectorAll('.menu-item').forEach(item => {
+            if (item.dataset.view === currentView) item.classList.add('active');
+            else item.classList.remove('active');
+        });
     }
 
+    // Calendar
     function renderCalendar() {
         if (!cameras.length) {
             document.getElementById('mainContent').innerHTML = `<div class="cartoon-card" style="padding:20px; text-align:center">🎈 Chưa có máy ảnh nào. Hãy thêm máy trước.</div>`;
@@ -474,21 +636,30 @@
         document.getElementById('nextMonthBtn')?.addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1); renderCalendar(); });
     }
 
+    // Dashboard
     function renderDashboard() {
         const stats = getStats();
         const most = getMostRentedCamera();
         const topCustomers = getTopCustomers(5);
+        const filmStats = getFilmStats();
         let topHtml = '';
         if (topCustomers.length === 0) topHtml = `<div class="cartoon-card" style="padding:20px; margin-top:20px;"><h3><i class="fas fa-users"></i> 🏆 Top khách hàng</h3><div class="text-center" style="padding:20px;">✨ Chưa có dữ liệu</div></div>`;
-        else topHtml = `<div class="cartoon-card" style="padding:20px; margin-top:20px;"><h3><i class="fas fa-users"></i> 🏆 Top khách hàng</h3><div style="overflow-x:auto;"><table style="width:100%;"><thead><tr><th>#</th><th>Tên KH</th><th>Số lần</th><th>Tổng chi</th><th>LK</th></tr></thead><tbody>${topCustomers.map((c,i)=>`<tr><td>${i+1}</td>}.${escapeHtml(c.name)}</td>}.${c.count}</td>}.${formatVND(c.totalSpent)}</td>}.${c.social?`<a href="${escapeHtml(c.social)}" target="_blank"><i class="fab fa-instagram"></i></a>`:'—'}</td></tr>`).join('')}</tbody></table></div></div>`;
+        else topHtml = `<div class="cartoon-card" style="padding:20px; margin-top:20px;"><h3><i class="fas fa-users"></i> 🏆 Top khách hàng</h3><div style="overflow-x:auto;"><table style="width:100%;"><thead><tr><th>#</th><th>Tên KH</th><th>Số lần</th><th>Tổng chi</th><th>LK</th></table></thead><tbody>${topCustomers.map((c,i)=>`<tr><td>${i+1}</td>}.${escapeHtml(c.name)}</td>}.${c.count}</td>}.${formatVND(c.totalSpent)}</td>}.${c.social?`<a href="${escapeHtml(c.social)}" target="_blank"><i class="fab fa-instagram"></i></a>`:'—'}</td></tr>`).join('')}</tbody></table></div></div>`;
         const html = `
             <div class="user-info"><span><i class="fas fa-user-circle"></i> ${escapeHtml(currentUsername)}${isAdmin ? ' (Admin)' : ''}</span><button id="logoutBtn" class="logout-btn">Đăng xuất</button></div>
             <div class="cartoon-card" style="padding:24px;"><h1><i class="fas fa-chalkboard-user"></i> ${escapeHtml(appSettings.headerText)}</h1></div>
             <div class="dashboard-stats">
-                <div class="stat-card"><i class="fas fa-dollar-sign fa-2x"></i><div class="stat-number">${formatVND(stats.totalRevenue)}</div><div>Tổng doanh thu</div></div>
+                <div class="stat-card"><i class="fas fa-dollar-sign fa-2x"></i><div class="stat-number">${formatVND(stats.totalRevenue)}</div><div>Doanh thu cho thuê</div></div>
                 <div class="stat-card"><i class="fas fa-hourglass-half fa-2x"></i><div class="stat-number">${formatHours(stats.totalHours)}</div><div>Tổng giờ thuê</div></div>
                 <div class="stat-card"><i class="fas fa-camera fa-2x"></i><div class="stat-number">${stats.totalCameras}</div><div>Máy ảnh</div></div>
                 <div class="stat-card"><i class="fas fa-trophy fa-2x"></i><div class="stat-number">🏆 ${escapeHtml(most.name)}</div><div>Thuê nhiều nhất (${most.count})</div></div>
+            </div>
+            <div class="cartoon-card" style="padding:20px;"><h3><i class="fas fa-film"></i> Thống kê bán film</h3>
+                <div class="dashboard-stats" style="margin-top:12px;">
+                    <div class="stat-card"><i class="fas fa-boxes fa-2x"></i><div class="stat-number">${filmStats.totalFilmQuantity}</div><div>Tổng film đã bán</div></div>
+                    <div class="stat-card"><i class="fas fa-dollar-sign fa-2x"></i><div class="stat-number">${formatVND(filmStats.totalFilmRevenue)}</div><div>Doanh thu film</div></div>
+                    <div class="stat-card"><i class="fas fa-crown fa-2x"></i><div class="stat-number">🏆 ${escapeHtml(filmStats.bestFilm)}</div><div>Film bán chạy nhất (${filmStats.bestQuantity} cuộn)</div></div>
+                </div>
             </div>
             <div class="cartoon-card" style="padding:20px;"><canvas id="revenueChart" style="max-height:300px; width:100%"></canvas><p style="text-align:center">💰 Doanh thu theo máy</p></div>
             ${topHtml}
@@ -502,6 +673,7 @@
         if (ctx) { if (revenueChart) revenueChart.destroy(); revenueChart = new Chart(ctx, { type: 'bar', data: { labels: Array.from(revMap.keys()), datasets: [{ label: 'Doanh thu (VND)', data: Array.from(revMap.values()), backgroundColor: '#ffaa66', borderRadius: 20 }] }, options: { responsive: true } }); }
     }
 
+    // Cameras
     function renderCameras() {
         let html = `<div class="user-info"><span><i class="fas fa-user-circle"></i> ${escapeHtml(currentUsername)}${isAdmin ? ' (Admin)' : ''}</span><button id="logoutBtn" class="logout-btn">Đăng xuất</button></div>
             <div class="cartoon-card" style="padding:20px; margin-bottom:24px;"><h2><i class="fas fa-plus-circle"></i> Thêm máy ảnh</h2>
@@ -527,7 +699,10 @@
             document.getElementById('rentalStart').value=''; document.getElementById('rentalEnd').value='';
             document.getElementById('basePrice').value='0'; document.getElementById('extraPin').value='0';
             document.getElementById('extraDamage').value='0'; document.getElementById('extraShipping').value='0';
-            document.getElementById('extraFilm').value='0'; updatePreviewTotal();
+            document.getElementById('extraFilm').value='0';
+            selectedFilmItems = [];
+            renderFilmSelection();
+            updatePreviewTotal();
             document.getElementById('rentalModal').style.visibility='visible';
         }));
         document.querySelectorAll('.deleteRentalBtn').forEach(btn=>btn.addEventListener('click',async(e)=>{ e.stopPropagation(); if(confirm("Xóa lịch thuê?")){ await deleteRental(btn.dataset.id); showToast("Đã xóa"); } }));
@@ -538,23 +713,38 @@
         }));
     }
 
+    // Lịch thuê có tìm kiếm
     function renderAllRentals() {
+        let filtered = [...rentals];
+        if (rentalSearchKeyword.trim()) {
+            const kw = rentalSearchKeyword.trim().toLowerCase();
+            filtered = rentals.filter(r => 
+                (r.customerName && r.customerName.toLowerCase().includes(kw)) ||
+                (r.cameraName && r.cameraName.toLowerCase().includes(kw)) ||
+                (getCameraName(r.cameraId) && getCameraName(r.cameraId).toLowerCase().includes(kw))
+            );
+        }
         let html = `<div class="user-info"><span><i class="fas fa-user-circle"></i> ${escapeHtml(currentUsername)}${isAdmin ? ' (Admin)' : ''}</span><button id="logoutBtn" class="logout-btn">Đăng xuất</button></div>
-            <div class="cartoon-card" style="padding:20px;"><h2>📋 Toàn bộ lịch sử cho thuê</h2></div>
-            <div class="rentals-table-wrapper"><table class="table-rentals"><thead><tr><th>Khách</th><th>Social</th><th>Máy</th><th>TG thuê</th><th>Giờ</th><th>Giá thuê</th><th>Pin</th><th>Hỏng</th><th>Ship</th><th>Tráng phim</th><th>Tổng</th><th>Xoá</th></tr></thead><tbody>`;
-        if (rentals.length===0) html+=`<tr><td colspan="12" class="text-center">🎈 Chưa có lịch thuê</td></td>`;
-        [...rentals].sort((a,b)=>new Date(b.startTime)-new Date(a.startTime)).forEach(r=>{
+            <div class="cartoon-card" style="padding:20px;"><h2>📋 Toàn bộ lịch sử cho thuê máy & film kèm</h2></div>
+            <div class="search-box"><input type="text" id="rentalSearchInput" placeholder="🔍 Tìm theo tên khách hàng hoặc máy ảnh..." value="${escapeHtml(rentalSearchKeyword)}"><button id="searchRentalBtn" class="cute-btn small-btn">Tìm</button><button id="resetSearchBtn" class="cute-btn small-btn btn-danger">Xóa</button></div>
+            <div class="rentals-table-wrapper"><table class="table-rentals"><thead><tr><th>Khách</th><th>Máy</th><th>TG thuê</th><th>Giờ</th><th>Tiền thuê</th><th>Film kèm</th><th>Tổng</th><th>Xoá</th></tr></thead><tbody>`;
+        if (filtered.length===0) html+=`<tr><td colspan="8" class="text-center">🎈 Không tìm thấy lịch thuê nào phù hợp</td></tr>`;
+        filtered.sort((a,b)=>new Date(b.startTime)-new Date(a.startTime)).forEach(r=>{
+            const filmSaleItems = filmSales.filter(s => s.rentalId === r.id);
+            let filmDetails = '';
+            if (filmSaleItems.length) {
+                filmDetails = filmSaleItems.map(s => {
+                    const f = films.find(fi => fi.id === s.filmId);
+                    return `${f ? f.name : 'Film?'} x${s.quantity}`;
+                }).join(', ');
+            } else filmDetails = '—';
             html+=`<tr>
                 <td><strong>${escapeHtml(r.customerName||'—')}</strong></td>
-                <td>${r.customerSocial?`<a href="${escapeHtml(r.customerSocial)}" target="_blank"><i class="fab fa-instagram"></i> Link</a>`:'—'}</td>
                 <td>${escapeHtml(r.cameraName||getCameraName(r.cameraId)||"Máy ảnh")}</td>
-                <td>${formatDate(r.startTime)} → ${formatDate(r.endTime)}</td>
+                <td>${formatDate(r.startTime)}→${formatDate(r.endTime)}</td>
                 <td>${formatHours(r.totalHours)}</td>
-                <td>${formatVND(r.basePrice||0)}</td>
-                <td>${formatVND(r.extraPin||0)}</td>
-                <td>${formatVND(r.extraDamage||0)}</td>
-                <td>${formatVND(r.extraShipping||0)}</td>
-                <td>${formatVND(r.extraFilm||0)}</td>
+                <td>${formatVND(r.basePrice + r.extraPin + r.extraDamage + r.extraShipping + r.extraFilm)}</td>
+                <td>${filmDetails}</td>
                 <td><strong>${formatVND(r.totalRevenue)}</strong></td>
                 <td><button class="small-btn btn-danger deleteRentalGlobal" data-id="${r.id}"><i class="fas fa-trash"></i></button></td>
             </tr>`;
@@ -562,16 +752,221 @@
         html+=`</tbody></table></div><footer>${escapeHtml(appSettings.footerText)}</footer>`;
         document.getElementById('mainContent').innerHTML = html;
         document.getElementById('logoutBtn')?.addEventListener('click',()=>logout());
-        document.querySelectorAll('.deleteRentalGlobal').forEach(btn=>btn.addEventListener('click',async()=>{ if(confirm("Xóa lịch thuê?")){ await deleteRental(btn.dataset.id); showToast("Đã xóa"); } }));
+        document.getElementById('searchRentalBtn')?.addEventListener('click',()=>{
+            rentalSearchKeyword = document.getElementById('rentalSearchInput').value;
+            renderAllRentals();
+        });
+        document.getElementById('resetSearchBtn')?.addEventListener('click',()=>{
+            rentalSearchKeyword = '';
+            renderAllRentals();
+        });
+        document.querySelectorAll('.deleteRentalGlobal').forEach(btn=>btn.addEventListener('click',async()=>{ if(confirm("Xóa lịch thuê?")){ await deleteRental(btn.dataset.id); showToast("Đã xóa"); renderAllRentals(); } }));
     }
 
+    // Quản lý film
+    function renderFilms() {
+        let html = `<div class="user-info"><span><i class="fas fa-user-circle"></i> ${escapeHtml(currentUsername)}${isAdmin ? ' (Admin)' : ''}</span><button id="logoutBtn" class="logout-btn">Đăng xuất</button></div>
+            <div class="cartoon-card" style="padding:20px; margin-bottom:24px;"><h2><i class="fas fa-plus-circle"></i> Thêm loại film mới</h2>
+            <div style="display:flex; flex-wrap:wrap; gap:12px;"><input type="text" id="newFilmName" placeholder="Tên film (VD: Kodak 200)" style="flex:2"><input type="number" id="newFilmPrice" placeholder="Giá (VNĐ)" style="width:150px"><button id="addFilmBtn" class="cute-btn">Thêm film</button></div></div>
+            <div class="films-table-wrapper"><table class="table-films"><thead><tr><th>Tên film</th><th>Giá bán</th><th>Đã bán (cuộn)</th><th>Doanh thu</th><th>Thao tác</th></tr></thead><tbody>`;
+        if (films.length===0) html+=`<tr><td colspan="5" class="text-center">🎈 Chưa có loại film nào</td></tr>`;
+        films.forEach(f => {
+            const sales = filmSales.filter(s => s.filmId === f.id);
+            const totalQty = sales.reduce((sum, s) => sum + s.quantity, 0);
+            const totalRev = sales.reduce((sum, s) => sum + s.revenue, 0);
+            html+=`<tr>
+                <td>${escapeHtml(f.name)}</td>
+                <td>${formatVND(f.price)}</td>
+                <td>${totalQty}</td>
+                <td>${formatVND(totalRev)}</td>
+                <td><button class="small-btn editFilmBtn" data-id="${f.id}" data-name="${escapeHtml(f.name)}" data-price="${f.price}"><i class="fas fa-edit"></i></button>
+                <button class="small-btn btn-danger deleteFilmBtn" data-id="${f.id}"><i class="fas fa-trash-alt"></i></button></td>
+            </tr>`;
+        });
+        html+=`</tbody></table></div><footer>${escapeHtml(appSettings.footerText)}</footer>`;
+        document.getElementById('mainContent').innerHTML = html;
+        document.getElementById('logoutBtn')?.addEventListener('click',()=>logout());
+        document.getElementById('addFilmBtn')?.addEventListener('click',async()=>{
+            const name = document.getElementById('newFilmName').value;
+            const price = parseFloat(document.getElementById('newFilmPrice').value);
+            if(name && price>0) { await addFilm(name, price); showToast(`🎞️ Thêm film ${name}`); }
+            else showToast("Nhập đủ tên và giá");
+        });
+        document.querySelectorAll('.deleteFilmBtn').forEach(btn=>btn.addEventListener('click',async()=>{
+            if(await deleteFilm(btn.dataset.id)) showToast("Đã xóa film");
+        }));
+        document.querySelectorAll('.editFilmBtn').forEach(btn=>btn.addEventListener('click',()=>{
+            const id = btn.dataset.id;
+            const oldName = btn.dataset.name;
+            const oldPrice = btn.dataset.price;
+            const newName = prompt("Tên film mới:", oldName);
+            if(newName && newName.trim()) {
+                const newPrice = prompt("Giá mới (VNĐ):", oldPrice);
+                if(newPrice && !isNaN(parseFloat(newPrice)) && parseFloat(newPrice)>0) {
+                    updateFilm(id, newName, parseFloat(newPrice));
+                    showToast("✏️ Đã cập nhật film");
+                } else showToast("Giá không hợp lệ");
+            }
+        }));
+    }
+
+    // Bán film lẻ
+    function renderFilmSales() {
+        const sales = standaloneFilmSales.sort((a,b)=>new Date(b.saleDate)-new Date(a.saleDate));
+        let html = `<div class="user-info"><span><i class="fas fa-user-circle"></i> ${escapeHtml(currentUsername)}${isAdmin ? ' (Admin)' : ''}</span><button id="logoutBtn" class="logout-btn">Đăng xuất</button></div>
+            <div class="cartoon-card" style="padding:20px; margin-bottom:24px;"><h2><i class="fas fa-shopping-cart"></i> Bán film lẻ</h2>
+            <button id="openFilmSaleModalBtn" class="cute-btn btn-success"><i class="fas fa-plus"></i> + Tạo đơn bán film</button></div>
+            <div class="cartoon-card" style="padding:20px;"><h2>📜 Lịch sử bán film lẻ</h2></div>
+            <div class="film-sales-wrapper"><table class="table-sales"><thead><tr><th>Khách hàng</th><th>Social</th><th>Film</th><th>Số lượng</th><th>Thành tiền</th><th>Ngày bán</th><th>Xoá</th></tr></thead><tbody>`;
+        if (sales.length===0) html+=`<tr><td colspan="7" class="text-center">🎈 Chưa có đơn bán film lẻ</td></tr>`;
+        sales.forEach(sale => {
+            const film = films.find(f => f.id === sale.filmId);
+            const filmName = film ? film.name : "Film đã xóa";
+            html+=`<tr>
+                <td>${escapeHtml(sale.customerName || '—')}</td>
+                <td>${sale.customerSocial ? `<a href="${escapeHtml(sale.customerSocial)}" target="_blank"><i class="fab fa-instagram"></i> Link</a>` : '—'}</td>
+                <td>${escapeHtml(filmName)}</td>
+                <td>${sale.quantity}</td>
+                <td>${formatVND(sale.revenue)}</td>
+                <td>${formatDate(sale.saleDate)}</td>
+                <td><button class="small-btn btn-danger deleteFilmSaleBtn" data-id="${sale.id}"><i class="fas fa-trash"></i></button></td>
+            </tr>`;
+        });
+        html+=`</tbody></table></div><footer>${escapeHtml(appSettings.footerText)}</footer>`;
+        document.getElementById('mainContent').innerHTML = html;
+        document.getElementById('logoutBtn')?.addEventListener('click',()=>logout());
+        document.getElementById('openFilmSaleModalBtn')?.addEventListener('click',() => {
+            standaloneSelectedItems = [];
+            document.getElementById('standaloneCustomerName').value = '';
+            document.getElementById('standaloneCustomerSocial').value = '';
+            renderStandaloneFilmSelection();
+            updateStandaloneTotal();
+            document.getElementById('standaloneFilmSaleModal').style.visibility = 'visible';
+        });
+        document.querySelectorAll('.deleteFilmSaleBtn').forEach(btn=>btn.addEventListener('click',async()=>{
+            if(confirm("Xóa đơn bán film này?")) { await deleteFilmSale(btn.dataset.id); showToast("Đã xóa"); renderFilmSales(); }
+        }));
+    }
+
+    // Helper cho film selection (thuê máy)
+    let selectedFilmItems = [];
+    function renderFilmSelection() {
+        const container = document.getElementById('filmItemsContainer');
+        if (!container) return;
+        container.innerHTML = '';
+        selectedFilmItems.forEach((item, idx) => {
+            const film = films.find(f => f.id === item.filmId);
+            if (!film) return;
+            const div = document.createElement('div');
+            div.className = 'film-item';
+            div.innerHTML = `
+                <div class="film-label"><i class="fas fa-film"></i> ${escapeHtml(film.name)} - ${formatVND(film.price)}/cuộn</div>
+                <div style="display:flex; gap:8px;">
+                    <input type="number" class="film-qty" data-idx="${idx}" value="${item.quantity}" min="1" step="1" style="flex:1">
+                    <button class="small-btn btn-danger remove-film-btn" data-idx="${idx}"><i class="fas fa-trash"></i></button>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+        document.querySelectorAll('.film-qty').forEach(input => {
+            input.addEventListener('change', (e) => {
+                const idx = parseInt(e.target.dataset.idx);
+                let newQty = parseInt(e.target.value) || 0;
+                if (newQty <= 0) selectedFilmItems.splice(idx, 1);
+                else selectedFilmItems[idx].quantity = newQty;
+                renderFilmSelection();
+                updatePreviewTotal();
+            });
+        });
+        document.querySelectorAll('.remove-film-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const idx = parseInt(btn.dataset.idx);
+                selectedFilmItems.splice(idx, 1);
+                renderFilmSelection();
+                updatePreviewTotal();
+            });
+        });
+    }
+    
+    function updatePreviewTotal() {
+        const base = parseFloat(document.getElementById('basePrice').value) || 0;
+        const pin = parseFloat(document.getElementById('extraPin').value) || 0;
+        const damage = parseFloat(document.getElementById('extraDamage').value) || 0;
+        const ship = parseFloat(document.getElementById('extraShipping').value) || 0;
+        const extraFilm = parseFloat(document.getElementById('extraFilm').value) || 0;
+        let rentalTotal = base + pin + damage + ship + extraFilm;
+        let filmTotal = 0;
+        for (let item of selectedFilmItems) {
+            const film = films.find(f => f.id === item.filmId);
+            if (film) filmTotal += film.price * item.quantity;
+        }
+        const total = rentalTotal + filmTotal;
+        document.getElementById('previewTotal').innerHTML = formatVND(total);
+    }
+    
+    // Helper cho standalone film sale
+    let standaloneSelectedItems = [];
+    function renderStandaloneFilmSelection() {
+        const container = document.getElementById('standaloneFilmItemsContainer');
+        if (!container) return;
+        container.innerHTML = '';
+        standaloneSelectedItems.forEach((item, idx) => {
+            const film = films.find(f => f.id === item.filmId);
+            if (!film) return;
+            const div = document.createElement('div');
+            div.className = 'film-item';
+            div.innerHTML = `
+                <div class="film-label"><i class="fas fa-film"></i> ${escapeHtml(film.name)} - ${formatVND(film.price)}/cuộn</div>
+                <div style="display:flex; gap:8px;">
+                    <input type="number" class="standalone-film-qty" data-idx="${idx}" value="${item.quantity}" min="1" step="1" style="flex:1">
+                    <button class="small-btn btn-danger remove-standalone-film-btn" data-idx="${idx}"><i class="fas fa-trash"></i></button>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+        document.querySelectorAll('.standalone-film-qty').forEach(input => {
+            input.addEventListener('change', (e) => {
+                const idx = parseInt(e.target.dataset.idx);
+                let newQty = parseInt(e.target.value) || 0;
+                if (newQty <= 0) standaloneSelectedItems.splice(idx, 1);
+                else standaloneSelectedItems[idx].quantity = newQty;
+                renderStandaloneFilmSelection();
+                updateStandaloneTotal();
+            });
+        });
+        document.querySelectorAll('.remove-standalone-film-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const idx = parseInt(btn.dataset.idx);
+                standaloneSelectedItems.splice(idx, 1);
+                renderStandaloneFilmSelection();
+                updateStandaloneTotal();
+            });
+        });
+    }
+    
+    function updateStandaloneTotal() {
+        let total = 0;
+        for (let item of standaloneSelectedItems) {
+            const film = films.find(f => f.id === item.filmId);
+            if (film) total += film.price * item.quantity;
+        }
+        document.getElementById('standalonePreviewTotal').innerHTML = formatVND(total);
+    }
+
+    // Admin
     function renderSettings() {
         let html = `<div class="user-info"><span><i class="fas fa-user-cog"></i> ${escapeHtml(currentUsername)} (Admin)</span><button id="logoutBtn" class="logout-btn">Đăng xuất</button></div>
             <div class="cartoon-card" style="padding:28px; margin-bottom:20px;"><h2><i class="fas fa-palette"></i> Cài đặt giao diện (toàn hệ thống)</h2>
             <div><label>🏷️ Tiêu đề trang:</label><input type="text" id="setTitle" value="${escapeHtml(appSettings.siteTitle)}">
             <label>📢 Header chính:</label><input type="text" id="setHeader" value="${escapeHtml(appSettings.headerText)}">
             <label>📌 Footer:</label><input type="text" id="setFooter" value="${escapeHtml(appSettings.footerText)}">
-            <button id="saveSettingsBtn" class="cute-btn btn-success">Lưu cài đặt</button></div></div>
+            <label><i class="fas fa-font"></i> Font chữ toàn website:</label>
+            <select id="fontSelect">
+                <option value="'Comic Neue', 'Be Vietnam Pro', cursive" ${appSettings.fontFamily === "'Comic Neue', 'Be Vietnam Pro', cursive" ? 'selected' : ''}>Mặc định (Comic Neue)</option>
+                <option value="'Be Vietnam Pro', sans-serif" ${appSettings.fontFamily === "'Be Vietnam Pro', sans-serif" ? 'selected' : ''}>FZ Fragrant Việt Hóa (Be Vietnam Pro)</option>
+                <option value="'Quicksand', sans-serif" ${appSettings.fontFamily === "'Quicksand', sans-serif" ? 'selected' : ''}>Quicksand</option>
+            </select>
+            <button id="saveSettingsBtn" class="cute-btn btn-success" style="margin-top:16px"><i class="fas fa-save"></i> Lưu cài đặt</button></div></div>
             <div class="cartoon-card" style="padding:28px;"><h2><i class="fas fa-key"></i> Đổi mật khẩu</h2>
             <div><label>Mật khẩu hiện tại:</label><input type="password" id="oldPassword">
             <label>Mật khẩu mới:</label><input type="password" id="newPassword">
@@ -581,12 +976,12 @@
         document.getElementById('mainContent').innerHTML = html;
         document.getElementById('logoutBtn')?.addEventListener('click',()=>logout());
         document.getElementById('saveSettingsBtn')?.addEventListener('click',async()=>{
-            const newSettings = {
+            await updateGlobalSettings({
                 siteTitle: document.getElementById('setTitle').value,
                 headerText: document.getElementById('setHeader').value,
-                footerText: document.getElementById('setFooter').value
-            };
-            await updateGlobalSettings(newSettings);
+                footerText: document.getElementById('setFooter').value,
+                fontFamily: document.getElementById('fontSelect').value
+            });
             showToast("✅ Cập nhật giao diện toàn hệ thống thành công!");
         });
         document.getElementById('changePasswordBtn')?.addEventListener('click',async()=>{
@@ -605,7 +1000,7 @@
     async function renderAdminDashboard() {
         const usersMetaRef=ref(db,`users_meta`);
         const snap=await get(usersMetaRef);
-        let totalUsers=0, totalCamerasAll=0, totalRevenueAll=0, totalRentalsAll=0;
+        let totalUsers=0, totalCamerasAll=0, totalRevenueAll=0, totalRentalsAll=0, totalFilmSalesAll=0, totalFilmRevenueAll=0;
         if(snap.exists()){
             const users=snap.val();
             totalUsers=Object.keys(users).length;
@@ -613,35 +1008,35 @@
                 const uid=users[uname].userId;
                 const camSnap=await get(ref(db,`users/${uid}/cameras`));
                 const rentSnap=await get(ref(db,`users/${uid}/rentals`));
+                const filmSalesSnap=await get(ref(db,`users/${uid}/filmSales`));
                 if(camSnap.exists()) totalCamerasAll+=Object.keys(camSnap.val()).length;
                 if(rentSnap.exists()){
                     const rents=Object.values(rentSnap.val());
                     totalRentalsAll+=rents.length;
                     totalRevenueAll+=rents.reduce((s,r)=>s+(r.totalRevenue||0),0);
                 }
+                if(filmSalesSnap.exists()){
+                    const sales=Object.values(filmSalesSnap.val());
+                    totalFilmSalesAll+=sales.length;
+                    totalFilmRevenueAll+=sales.reduce((s,sl)=>s+(sl.revenue||0),0);
+                }
             }
         }
         const html=`<div class="user-info"><span><i class="fas fa-user-shield"></i> ${escapeHtml(currentUsername)} (Quản trị)</span><button id="logoutBtn" class="logout-btn">Đăng xuất</button></div>
             <div class="cartoon-card" style="padding:24px;"><h1><i class="fas fa-chart-pie"></i> Dashboard Quản trị</h1></div>
-            <div class="dashboard-stats"><div class="stat-card"><i class="fas fa-users fa-2x"></i><div class="stat-number">${totalUsers}</div><div>Người dùng</div></div>
-            <div class="stat-card"><i class="fas fa-camera fa-2x"></i><div class="stat-number">${totalCamerasAll}</div><div>Tổng máy ảnh</div></div>
-            <div class="stat-card"><i class="fas fa-dollar-sign fa-2x"></i><div class="stat-number">${formatVND(totalRevenueAll)}</div><div>Tổng doanh thu</div></div>
-            <div class="stat-card"><i class="fas fa-calendar-alt fa-2x"></i><div class="stat-number">${totalRentalsAll}</div><div>Tổng lượt thuê</div></div></div>
+            <div class="dashboard-stats">
+                <div class="stat-card"><i class="fas fa-users fa-2x"></i><div class="stat-number">${totalUsers}</div><div>Người dùng</div></div>
+                <div class="stat-card"><i class="fas fa-camera fa-2x"></i><div class="stat-number">${totalCamerasAll}</div><div>Tổng máy ảnh</div></div>
+                <div class="stat-card"><i class="fas fa-dollar-sign fa-2x"></i><div class="stat-number">${formatVND(totalRevenueAll)}</div><div>Doanh thu thuê</div></div>
+                <div class="stat-card"><i class="fas fa-film fa-2x"></i><div class="stat-number">${totalFilmSalesAll}</div><div>Giao dịch film</div></div>
+                <div class="stat-card"><i class="fas fa-money-bill-wave fa-2x"></i><div class="stat-number">${formatVND(totalFilmRevenueAll)}</div><div>Doanh thu film</div></div>
+            </div>
             <footer>${escapeHtml(appSettings.footerText)}</footer>`;
         document.getElementById('mainContent').innerHTML = html;
         document.getElementById('logoutBtn')?.addEventListener('click',()=>logout());
     }
 
-    function updatePreviewTotal() {
-        const base = parseFloat(document.getElementById('basePrice').value) || 0;
-        const pin = parseFloat(document.getElementById('extraPin').value) || 0;
-        const damage = parseFloat(document.getElementById('extraDamage').value) || 0;
-        const ship = parseFloat(document.getElementById('extraShipping').value) || 0;
-        const film = parseFloat(document.getElementById('extraFilm').value) || 0;
-        const total = base + pin + damage + ship + film;
-        document.getElementById('previewTotal').innerHTML = formatVND(total);
-    }
-
+    // Khởi tạo modal
     function initModals() {
         const rentalModal = document.getElementById('rentalModal');
         document.getElementById('closeModalBtn').onclick = () => rentalModal.style.visibility = 'hidden';
@@ -651,6 +1046,19 @@
             const el = document.getElementById(id);
             if (el) el.addEventListener('input', updatePreviewTotal);
         });
+        const addFilmSelectBtn = document.getElementById('addFilmSelectBtn');
+        if (addFilmSelectBtn) {
+            addFilmSelectBtn.onclick = () => {
+                const filmId = document.getElementById('filmSelect').value;
+                if (filmId) {
+                    const existing = selectedFilmItems.find(item => item.filmId === filmId);
+                    if (existing) existing.quantity += 1;
+                    else selectedFilmItems.push({ filmId, quantity: 1 });
+                    renderFilmSelection();
+                    updatePreviewTotal();
+                }
+            };
+        }
         document.getElementById('saveRentalBtn').onclick = async () => {
             const camId = document.getElementById('modalCameraId').value;
             const customerName = document.getElementById('customerName').value;
@@ -661,13 +1069,46 @@
             const pin = parseFloat(document.getElementById('extraPin').value) || 0;
             const damage = parseFloat(document.getElementById('extraDamage').value) || 0;
             const ship = parseFloat(document.getElementById('extraShipping').value) || 0;
-            const film = parseFloat(document.getElementById('extraFilm').value) || 0;
+            const extraFilm = parseFloat(document.getElementById('extraFilm').value) || 0;
             if (!start || !end) { showToast("Vui lòng chọn thời gian!"); return; }
             if (!customerName.trim()) { showToast("Vui lòng nhập tên khách hàng!"); return; }
-            const result = await addRental(camId, start, end, base, pin, damage, ship, film, customerName, customerSocial);
-            if (result.success) { showToast("✅ Đặt lịch thành công!"); rentalModal.style.visibility = 'hidden'; }
+            const filmItems = selectedFilmItems.map(item => ({ filmId: item.filmId, quantity: item.quantity }));
+            const result = await addRental(camId, start, end, base, pin, damage, ship, extraFilm, customerName, customerSocial, filmItems);
+            if (result.success) { showToast("✅ Đặt lịch thành công!"); rentalModal.style.visibility = 'hidden'; selectedFilmItems = []; }
             else showToast(`❌ ${result.msg}`);
         };
+        
+        const standaloneModal = document.getElementById('standaloneFilmSaleModal');
+        document.getElementById('closeStandaloneModalBtn').onclick = () => standaloneModal.style.visibility = 'hidden';
+        window.onclick = (e) => { if (e.target === standaloneModal) standaloneModal.style.visibility = 'hidden'; };
+        const addStandaloneFilmBtn = document.getElementById('addStandaloneFilmBtn');
+        if (addStandaloneFilmBtn) {
+            addStandaloneFilmBtn.onclick = () => {
+                const filmId = document.getElementById('standaloneFilmSelect').value;
+                if (filmId) {
+                    const existing = standaloneSelectedItems.find(item => item.filmId === filmId);
+                    if (existing) existing.quantity += 1;
+                    else standaloneSelectedItems.push({ filmId, quantity: 1 });
+                    renderStandaloneFilmSelection();
+                    updateStandaloneTotal();
+                }
+            };
+        }
+        document.getElementById('saveStandaloneSaleBtn').onclick = async () => {
+            const customerName = document.getElementById('standaloneCustomerName').value;
+            const customerSocial = document.getElementById('standaloneCustomerSocial').value;
+            if (!customerName.trim()) { showToast("Vui lòng nhập tên khách hàng!"); return; }
+            if (standaloneSelectedItems.length === 0) { showToast("Vui lòng chọn ít nhất một loại film!"); return; }
+            const filmItems = standaloneSelectedItems.map(item => ({ filmId: item.filmId, quantity: item.quantity }));
+            const result = await addStandaloneFilmSale(customerName, customerSocial, filmItems);
+            if (result.success) {
+                showToast("✅ Bán film thành công!");
+                standaloneModal.style.visibility = 'hidden';
+                standaloneSelectedItems = [];
+                renderFilmSales();
+            } else showToast(`❌ ${result.msg}`);
+        };
+        
         const editModal = document.getElementById('editCameraModal');
         document.getElementById('closeEditModalBtn').onclick = () => editModal.style.visibility = 'hidden';
         window.onclick = (e) => { if (e.target === editModal) editModal.style.visibility = 'hidden'; };
@@ -679,6 +1120,7 @@
         };
     }
 
+    // AUTH
     async function register(username, password, confirmPassword) {
         if(password!==confirmPassword) throw new Error("Mật khẩu nhập lại không khớp");
         if(username.length<3) throw new Error("Tên đăng nhập phải >=3 ký tự");
@@ -723,21 +1165,29 @@
 
     function startApp() {
         let sidebarHtml = `<div class="sidebar">
-            <div class="logo-area"><h2 id="dynamicTitle"><i class="fas fa-camera-retro"></i> Banhsungboo</h2></div>
-            <div class="menu-item" data-view="dashboard"><i class="fas fa-chart-line"></i> <span>📊 Thống kê</span></div>
-            <div class="menu-item" data-view="cameras"><i class="fas fa-camera"></i> <span>📷 Máy ảnh</span></div>
-            <div class="menu-item" data-view="rentals"><i class="fas fa-calendar-check"></i> <span>📅 Lịch thuê</span></div>
-            <div class="menu-item" data-view="calendar"><i class="fas fa-calendar-alt"></i> <span>📆 Lịch máy</span></div>`;
-        if(isAdmin){
-            sidebarHtml += `<div class="menu-item" data-view="settings"><i class="fas fa-sliders-h"></i> <span>⚙️ Cài đặt</span></div>
-                            <div class="menu-item" data-view="admin"><i class="fas fa-user-shield"></i> <span>👑 Quản trị</span></div>`;
+            <div class="logo-area"><h2 id="dynamicTitle"><i class="fas fa-camera-retro"></i> Banhsungboo</h2></div>`;
+        if (isAdmin) {
+            sidebarHtml += `
+                <div class="menu-section-title">👑 QUẢN TRỊ</div>
+                <div class="menu-item" data-view="admin"><i class="fas fa-chart-pie"></i> <span>📊 Thống kê hệ thống</span></div>
+                <div class="menu-item" data-view="settings"><i class="fas fa-sliders-h"></i> <span>⚙️ Cài đặt</span></div>`;
+        } else {
+            sidebarHtml += `
+                <div class="menu-section-title">📸 CHO THUÊ MÁY</div>
+                <div class="menu-item" data-view="dashboard"><i class="fas fa-chart-line"></i> <span>📊 Thống kê</span></div>
+                <div class="menu-item" data-view="cameras"><i class="fas fa-camera"></i> <span>📷 Máy ảnh</span></div>
+                <div class="menu-item" data-view="rentals"><i class="fas fa-calendar-check"></i> <span>📅 Lịch thuê</span></div>
+                <div class="menu-item" data-view="calendar"><i class="fas fa-calendar-alt"></i> <span>📆 Lịch máy</span></div>
+                <div class="menu-section-title">🎞️ BÁN FILM</div>
+                <div class="menu-item" data-view="films"><i class="fas fa-film"></i> <span>🎞️ Quản lý film</span></div>
+                <div class="menu-item" data-view="filmSales"><i class="fas fa-shopping-cart"></i> <span>🧾 Bán film lẻ</span></div>`;
         }
         sidebarHtml += `</div><div class="main-content" id="mainContent"></div>`;
         
         const modalHtml = `
             <div id="rentalModal" class="modal-overlay">
                 <div class="modal-content">
-                    <h3 style="text-align:center; margin-bottom:16px;"><i class="fas fa-calendar-plus"></i> Đặt lịch thuê máy</h3>
+                    <h3 style="text-align:center; margin-bottom:16px;"><i class="fas fa-calendar-plus"></i> Đặt lịch thuê máy & mua film</h3>
                     <p id="modalCameraName" style="text-align:center; font-weight:bold; background:#ffe6b3; padding:8px; border-radius:40px;"></p>
                     <input type="hidden" id="modalCameraId">
                     <label><i class="fas fa-user"></i> Tên khách hàng *</label>
@@ -748,18 +1198,46 @@
                     <input type="datetime-local" id="rentalStart">
                     <label><i class="fas fa-calendar-check"></i> Thời gian kết thúc</label>
                     <input type="datetime-local" id="rentalEnd">
-                    <div style="margin:16px 0 8px; font-weight:bold; text-align:center;">💰 Các khoản chi phí (VNĐ)</div>
+                    <div style="margin:16px 0 8px; font-weight:bold; text-align:center;">💰 Chi phí thuê máy</div>
                     <div class="price-grid">
-                        <div class="price-item"><div class="price-label"><i class="fas fa-money-bill-wave"></i> Giá thuê cơ bản</div><input type="number" id="basePrice" value="0" placeholder="0"></div>
-                        <div class="price-item"><div class="price-label"><i class="fas fa-battery-full"></i> Pin dự phòng</div><input type="number" id="extraPin" value="0" placeholder="0"></div>
-                        <div class="price-item"><div class="price-label"><i class="fas fa-tools"></i> Hỏng / sửa máy</div><input type="number" id="extraDamage" value="0" placeholder="0"></div>
-                        <div class="price-item"><div class="price-label"><i class="fas fa-shipping-fast"></i> Phí ship</div><input type="number" id="extraShipping" value="0" placeholder="0"></div>
-                        <div class="price-item"><div class="price-label"><i class="fas fa-film"></i> Tráng phim</div><input type="number" id="extraFilm" value="0" placeholder="0"></div>
+                        <div class="price-item"><div class="price-label"><i class="fas fa-money-bill-wave"></i> Giá thuê cơ bản</div><input type="number" id="basePrice" value="0"></div>
+                        <div class="price-item"><div class="price-label"><i class="fas fa-battery-full"></i> Pin dự phòng</div><input type="number" id="extraPin" value="0"></div>
+                        <div class="price-item"><div class="price-label"><i class="fas fa-tools"></i> Hỏng / sửa máy</div><input type="number" id="extraDamage" value="0"></div>
+                        <div class="price-item"><div class="price-label"><i class="fas fa-shipping-fast"></i> Phí ship</div><input type="number" id="extraShipping" value="0"></div>
+                        <div class="price-item"><div class="price-label"><i class="fas fa-film"></i> Tráng phim (dịch vụ)</div><input type="number" id="extraFilm" value="0"></div>
+                    </div>
+                    <div class="film-selector">
+                        <div style="font-weight:bold; margin-bottom:8px;"><i class="fas fa-shopping-cart"></i> Mua thêm film (bán kèm)</div>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <select id="filmSelect" style="flex:1"><option>Đang tải...</option></select>
+                            <button id="addFilmSelectBtn" class="cute-btn add-film-btn">+ Thêm film</button>
+                        </div>
+                        <div id="filmItemsContainer" class="film-selection" style="margin-top:12px;"></div>
                     </div>
                     <div class="total-box"><i class="fas fa-calculator"></i> Tổng doanh thu: <strong id="previewTotal">0 VNĐ</strong></div>
                     <div class="flex-btns">
                         <button id="saveRentalBtn" class="cute-btn btn-success"><i class="fas fa-save"></i> Lưu hợp đồng</button>
                         <button id="closeModalBtn" class="cute-btn"><i class="fas fa-times"></i> Hủy</button>
+                    </div>
+                </div>
+            </div>
+            <div id="standaloneFilmSaleModal" class="modal-overlay">
+                <div class="modal-content">
+                    <h3 style="text-align:center;"><i class="fas fa-film"></i> Bán film lẻ</h3>
+                    <label><i class="fas fa-user"></i> Tên khách hàng *</label>
+                    <input type="text" id="standaloneCustomerName" placeholder="Nhập tên khách hàng">
+                    <label><i class="fab fa-instagram"></i> Instagram / Facebook (link)</label>
+                    <input type="url" id="standaloneCustomerSocial" placeholder="https://instagram.com/...">
+                    <div style="font-weight:bold; margin:16px 0 8px;"><i class="fas fa-shopping-cart"></i> Chọn film bán:</div>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <select id="standaloneFilmSelect" style="flex:1"><option>Đang tải...</option></select>
+                        <button id="addStandaloneFilmBtn" class="cute-btn add-film-btn">+ Thêm film</button>
+                    </div>
+                    <div id="standaloneFilmItemsContainer" class="film-selection" style="margin-top:12px;"></div>
+                    <div class="total-box"><i class="fas fa-calculator"></i> Tổng tiền: <strong id="standalonePreviewTotal">0 VNĐ</strong></div>
+                    <div class="flex-btns">
+                        <button id="saveStandaloneSaleBtn" class="cute-btn btn-success"><i class="fas fa-save"></i> Lưu đơn hàng</button>
+                        <button id="closeStandaloneModalBtn" class="cute-btn"><i class="fas fa-times"></i> Hủy</button>
                     </div>
                 </div>
             </div>
@@ -792,7 +1270,7 @@
             });
         };
         setTimeout(attachMenu, 100);
-        setActiveView('dashboard');
+        setActiveView(isAdmin ? 'admin' : 'dashboard');
     }
 
     function setActiveView(view){ currentView = view; reRenderCurrentView(); }
