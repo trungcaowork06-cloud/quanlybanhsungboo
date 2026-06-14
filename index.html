@@ -4,11 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
     <title>Banhsungboo - Quản lý cho thuê & bán film</title>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Comic+Neue:wght@400;700&family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts bổ sung nhiều font tiếng Việt -->
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Comic+Neue:wght@400;700&family=Quicksand:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Dancing+Script:wght@400;500;600;700&family=Pacifico&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* ========== KHAI BÁO FONT CUSTOM ========== */
+        @font-face {
+            font-family: 'FzFragrant';
+            src: url('https://cdn.jsdelivr.net/gh/trungcaowork06-cloud/quanlybanhsungboo@7e969fb8d69aa6ac88a8145d23d9396da7c829d9/Fz-Fragrant.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'iCielCrocante';
+            src: url('https://cdn.jsdelivr.net/gh/trungcaowork06-cloud/quanlybanhsungboo/iCiel%20Crocante.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
         body {
             font-family: 'Comic Neue', 'Be Vietnam Pro', cursive;
             background: #fef7e8;
@@ -234,153 +248,53 @@
         .search-box { margin-bottom: 16px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         .search-box input { flex: 1; min-width: 120px; }
 
-        /* ========== RESPONSIVE MOBILE CẢI TIẾN ========== */
+        /* ========== RESPONSIVE MOBILE ========== */
         @media (max-width: 780px) {
-            .app-container {
-                grid-template-columns: 1fr;
-                padding-bottom: 70px;
-            }
+            .app-container { grid-template-columns: 1fr; padding-bottom: 70px; }
             .sidebar {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                top: auto;
-                display: flex;
-                flex-direction: row;
-                justify-content: space-around;
-                align-items: center;
-                border-radius: 32px 32px 0 0;
-                padding: 8px 10px;
-                border-right: none;
-                border-top: 5px solid #ffc28c;
-                z-index: 200;
-                background: #ffecb3;
-                overflow-x: auto;
-                white-space: nowrap;
-                gap: 8px;
+                position: fixed; bottom: 0; left: 0; right: 0; top: auto; display: flex;
+                flex-direction: row; justify-content: space-around; align-items: center;
+                border-radius: 32px 32px 0 0; padding: 8px 10px; border-right: none;
+                border-top: 5px solid #ffc28c; z-index: 200; background: #ffecb3;
+                overflow-x: auto; white-space: nowrap; gap: 8px;
             }
             .logo-area { display: none; }
             .menu-section-title { display: none; }
             .menu-item {
-                flex-direction: column;
-                gap: 2px;
-                padding: 6px 10px;
-                margin: 0;
-                font-size: 0.7rem;
-                text-align: center;
-                background: transparent;
-                box-shadow: none;
-                border-radius: 40px;
-                min-width: 60px;
+                flex-direction: column; gap: 2px; padding: 6px 10px; margin: 0;
+                font-size: 0.7rem; text-align: center; background: transparent;
+                box-shadow: none; border-radius: 40px; min-width: 60px;
             }
-            .menu-item i {
-                font-size: 1.3rem;
-                width: auto;
-                margin: 0;
-            }
-            .menu-item span {
-                font-size: 0.65rem;
-            }
-            .menu-item.active {
-                background: #ffc285;
-                color: white;
-                box-shadow: none;
-            }
-            .main-content {
-                padding: 16px 12px 80px 12px;
-            }
-            .dashboard-stats {
-                gap: 12px;
-            }
-            .stat-card {
-                min-width: 140px;
-                padding: 12px;
-            }
-            .stat-number {
-                font-size: 1.8rem;
-            }
-            .camera-grid {
-                grid-template-columns: 1fr;
-                gap: 16px;
-            }
-            .camera-card {
-                padding: 12px;
-            }
-            .price-grid, .film-selection {
-                grid-template-columns: 1fr;
-                gap: 10px;
-            }
-            .modal-content {
-                padding: 20px;
-                max-width: 95%;
-            }
-            .modal-content label {
-                font-size: 0.9rem;
-            }
-            .user-info {
-                padding: 6px 12px;
-                font-size: 0.85rem;
-                flex-wrap: wrap;
-            }
-            .logout-btn {
-                padding: 4px 12px;
-                font-size: 0.7rem;
-            }
-            .small-btn {
-                padding: 6px 10px;
-                font-size: 0.7rem;
-                min-height: 36px;
-            }
-            .search-box {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .search-box button {
-                width: 100%;
-            }
-            .table-rentals, .table-films, .table-sales {
-                min-width: 600px;
-            }
-            .rentals-table-wrapper, .films-table-wrapper, .film-sales-wrapper {
-                margin: 12px 0;
-                border-radius: 24px;
-            }
-            .total-box {
-                font-size: 0.9rem;
-            }
-            .month-nav {
-                flex-direction: column;
-                gap: 8px;
-            }
-            .calendar-grid {
-                gap: 4px;
-            }
-            .calendar-day {
-                padding: 8px 2px;
-                font-size: 0.7rem;
-            }
+            .menu-item i { font-size: 1.3rem; width: auto; margin: 0; }
+            .menu-item span { font-size: 0.65rem; }
+            .menu-item.active { background: #ffc285; color: white; box-shadow: none; }
+            .main-content { padding: 16px 12px 80px 12px; }
+            .dashboard-stats { gap: 12px; }
+            .stat-card { min-width: 140px; padding: 12px; }
+            .stat-number { font-size: 1.8rem; }
+            .camera-grid { grid-template-columns: 1fr; gap: 16px; }
+            .camera-card { padding: 12px; }
+            .price-grid, .film-selection { grid-template-columns: 1fr; gap: 10px; }
+            .modal-content { padding: 20px; max-width: 95%; }
+            .user-info { padding: 6px 12px; font-size: 0.85rem; flex-wrap: wrap; }
+            .logout-btn { padding: 4px 12px; font-size: 0.7rem; }
+            .small-btn { padding: 6px 10px; font-size: 0.7rem; min-height: 36px; }
+            .search-box { flex-direction: column; align-items: stretch; }
+            .search-box button { width: 100%; }
+            .table-rentals, .table-films, .table-sales { min-width: 600px; }
+            .rentals-table-wrapper, .films-table-wrapper, .film-sales-wrapper { margin: 12px 0; border-radius: 24px; }
+            .total-box { font-size: 0.9rem; }
+            .month-nav { flex-direction: column; gap: 8px; }
+            .calendar-grid { gap: 4px; }
+            .calendar-day { padding: 8px 2px; font-size: 0.7rem; }
         }
         @media (max-width: 480px) {
-            .main-content {
-                padding: 12px 10px 80px 10px;
-            }
-            .menu-item {
-                min-width: 55px;
-                padding: 4px 6px;
-            }
-            .menu-item i {
-                font-size: 1.1rem;
-            }
-            .menu-item span {
-                font-size: 0.6rem;
-            }
-            .stat-number {
-                font-size: 1.5rem;
-            }
-            .cartoon-card {
-                padding: 12px !important;
-            }
+            .main-content { padding: 12px 10px 80px 10px; }
+            .menu-item { min-width: 55px; padding: 4px 6px; }
+            .menu-item i { font-size: 1.1rem; }
+            .menu-item span { font-size: 0.6rem; }
+            .stat-number { font-size: 1.5rem; }
+            .cartoon-card { padding: 12px !important; }
         }
         footer {
             text-align: center;
@@ -535,8 +449,9 @@
     }
     async function deleteCamera(cameraId) {
         if (!currentUserId) return false;
+        if (!confirm("❌ Bạn có chắc chắn muốn xóa máy ảnh này? Hành động này không thể hoàn tác!")) return false;
         const hasRentals = rentals.some(r => r.cameraId === cameraId);
-        if (hasRentals && !confirm("⚠️ Máy đã có lịch sử thuê. Xóa máy sẽ KHÔNG xóa lịch sử. Tiếp tục?")) return false;
+        if (hasRentals && !confirm("⚠️ Máy này đã có lịch sử thuê. Xóa máy sẽ KHÔNG xóa lịch sử (vẫn hiển thị tên máy đã xóa). Tiếp tục?")) return false;
         await remove(ref(db, `users/${currentUserId}/cameras/${cameraId}`));
         return true;
     }
@@ -625,6 +540,7 @@
     
     async function deleteRental(rentalId) {
         if (!currentUserId) return false;
+        if (!confirm("❌ Bạn có chắc chắn muốn xóa lịch thuê này? Hành động này không thể hoàn tác!")) return false;
         const salesToDelete = filmSales.filter(s => s.rentalId === rentalId);
         for (let sale of salesToDelete) await remove(ref(db, `users/${currentUserId}/filmSales/${sale.id}`));
         await remove(ref(db, `users/${currentUserId}/rentals/${rentalId}`));
@@ -633,6 +549,7 @@
     
     async function deleteFilmSale(saleId) {
         if (!currentUserId) return false;
+        if (!confirm("❌ Bạn có chắc chắn muốn xóa đơn bán film này? Hành động này không thể hoàn tác!")) return false;
         await remove(ref(db, `users/${currentUserId}/filmSales/${saleId}`));
         return true;
     }
@@ -645,8 +562,9 @@
     }
     async function deleteFilm(filmId) {
         if (!currentUserId) return false;
+        if (!confirm("❌ Bạn có chắc chắn muốn xóa loại film này? Hành động này không thể hoàn tác!")) return false;
         const hasSales = filmSales.some(s => s.filmId === filmId);
-        if (hasSales && !confirm("⚠️ Film đã có trong lịch sử bán. Xóa sẽ giữ lịch sử. Tiếp tục?")) return false;
+        if (hasSales && !confirm("⚠️ Film này đã có trong lịch sử bán. Xóa sẽ giữ lịch sử nhưng film sẽ không còn trong danh sách. Tiếp tục?")) return false;
         await remove(ref(db, `users/${currentUserId}/films/${filmId}`));
         return true;
     }
@@ -775,7 +693,13 @@
         const filmStats = getFilmStats();
         let topHtml = '';
         if (topCustomers.length === 0) topHtml = `<div class="cartoon-card" style="padding:20px; margin-top:20px;"><h3><i class="fas fa-users"></i> 🏆 Top khách hàng</h3><div class="text-center" style="padding:20px;">✨ Chưa có dữ liệu</div></div>`;
-        else topHtml = `<div class="cartoon-card" style="padding:20px; margin-top:20px;"><h3><i class="fas fa-users"></i> 🏆 Top khách hàng</h3><div style="overflow-x:auto;"><table style="width:100%;"><thead><tr><th>#</th><th>Tên KH</th><th>Số lần</th><th>Tổng chi</th><th>LK</th></tr></thead><tbody>${topCustomers.map((c,i)=>`<tr><td>${i+1}</td>}.${escapeHtml(c.name)}</td>}.${c.count}</td>}.${formatVND(c.totalSpent)}</td>}.${c.social?`<a href="${escapeHtml(c.social)}" target="_blank"><i class="fab fa-instagram"></i></a>`:'—'}</td></tr>`).join('')}</tbody></table></div></div>`;
+        else topHtml = `<div class="cartoon-card" style="padding:20px; margin-top:20px;"><h3><i class="fas fa-users"></i> 🏆 Top khách hàng</h3><div style="overflow-x:auto;"><table style="width:100%;"><thead><tr><th>#</th><th>Tên KH</th><th>Số lần</th><th>Tổng chi</th><th>LK</th></tr></thead><tbody>${topCustomers.map((c,i)=>`</td>
+                <td>${i+1}</td>
+                <td>${escapeHtml(c.name)}</td>
+                <td>${c.count}</td>
+                <td>${formatVND(c.totalSpent)}</td>
+                <td>${c.social?`<a href="${escapeHtml(c.social)}" target="_blank"><i class="fab fa-instagram"></i></a>`:'—'}</td>
+              </tr>`).join('')}</tbody></table></div></div>`;
         const html = `
             <div class="user-info"><span><i class="fas fa-user-circle"></i> ${escapeHtml(currentUsername)}${isAdmin ? ' (Admin)' : ''}</span><button id="logoutBtn" class="logout-btn">Đăng xuất</button></div>
             <div class="cartoon-card" style="padding:24px;"><h1><i class="fas fa-chalkboard-user"></i> ${escapeHtml(appSettings.headerText)}</h1></div>
@@ -822,7 +746,7 @@
         document.getElementById('mainContent').innerHTML = html;
         document.getElementById('logoutBtn')?.addEventListener('click',()=>logout());
         document.getElementById('addCameraBtn')?.addEventListener('click',async()=>{ const name=document.getElementById('newCamName').value; if(name.trim()){ await addCamera(name); showToast(`📸 Thêm ${name}`); } else showToast("Nhập tên máy"); });
-        document.querySelectorAll('.deleteCamBtn').forEach(btn=>btn.addEventListener('click',async()=>{ if(await deleteCamera(btn.dataset.id)) showToast("Đã xóa máy"); }));
+        document.querySelectorAll('.deleteCamBtn').forEach(btn=>btn.addEventListener('click',async()=>{ if(await deleteCamera(btn.dataset.id)) showToast("🗑️ Đã xóa máy"); }));
         document.querySelectorAll('.addRentBtn').forEach(btn=>btn.addEventListener('click',()=>{
             document.getElementById('modalCameraId').value=btn.dataset.id;
             document.getElementById('modalCameraName').innerText=`Máy: ${btn.dataset.name}`;
@@ -836,7 +760,7 @@
             updatePreviewTotal();
             document.getElementById('rentalModal').style.visibility='visible';
         }));
-        document.querySelectorAll('.deleteRentalBtn').forEach(btn=>btn.addEventListener('click',async(e)=>{ e.stopPropagation(); if(confirm("Xóa lịch thuê?")){ await deleteRental(btn.dataset.id); showToast("Đã xóa"); } }));
+        document.querySelectorAll('.deleteRentalBtn').forEach(btn=>btn.addEventListener('click',async(e)=>{ e.stopPropagation(); if(await deleteRental(btn.dataset.id)) showToast("Đã xóa lịch thuê"); }));
         document.querySelectorAll('.editCamBtn').forEach(btn=>btn.addEventListener('click',()=>{
             document.getElementById('editCameraId').value=btn.dataset.id;
             document.getElementById('editCameraName').value=btn.dataset.name;
@@ -891,7 +815,7 @@
             rentalSearchKeyword = '';
             renderAllRentals();
         });
-        document.querySelectorAll('.deleteRentalGlobal').forEach(btn=>btn.addEventListener('click',async()=>{ if(confirm("Xóa lịch thuê?")){ await deleteRental(btn.dataset.id); showToast("Đã xóa"); renderAllRentals(); } }));
+        document.querySelectorAll('.deleteRentalGlobal').forEach(btn=>btn.addEventListener('click',async()=>{ if(await deleteRental(btn.dataset.id)) showToast("Đã xóa lịch thuê"); renderAllRentals(); }));
     }
 
     // Quản lý film
@@ -899,8 +823,8 @@
         let html = `<div class="user-info"><span><i class="fas fa-user-circle"></i> ${escapeHtml(currentUsername)}${isAdmin ? ' (Admin)' : ''}</span><button id="logoutBtn" class="logout-btn">Đăng xuất</button></div>
             <div class="cartoon-card" style="padding:20px; margin-bottom:24px;"><h2><i class="fas fa-plus-circle"></i> Thêm loại film mới</h2>
             <div style="display:flex; flex-wrap:wrap; gap:12px;"><input type="text" id="newFilmName" placeholder="Tên film (VD: Kodak 200)" style="flex:2"><input type="number" id="newFilmPrice" placeholder="Giá (VNĐ)" style="width:150px"><button id="addFilmBtn" class="cute-btn">Thêm film</button></div></div>
-            <div class="films-table-wrapper"><table class="table-films"><thead><tr><th>Tên film</th><th>Giá bán</th><th>Đã bán (cuộn)</th><th>Doanh thu</th><th>Thao tác</th></tr></thead><tbody>`;
-        if (films.length===0) html+=`<tr><td colspan="5" class="text-center">🎈 Chưa có loại film nào</td></td>`;
+            <div class="films-table-wrapper"><table class="table-films"><thead><tr><th>Tên film</th><th>Giá bán</th><th>Đã bán (cuộn)</th><th>Doanh thu</th><th>Thao tác</th></td></thead><tbody>`;
+        if (films.length===0) html+=`<tr><td colspan="5" class="text-center">🎈 Chưa có loại film nào</td></tr>`;
         films.forEach(f => {
             const sales = filmSales.filter(s => s.filmId === f.id);
             const totalQty = sales.reduce((sum, s) => sum + s.quantity, 0);
@@ -949,13 +873,14 @@
             <button id="openFilmSaleModalBtn" class="cute-btn btn-success"><i class="fas fa-plus"></i> + Tạo đơn bán film</button></div>
             <div class="cartoon-card" style="padding:20px;"><h2>📜 Lịch sử bán film lẻ</h2></div>
             <div class="film-sales-wrapper"><table class="table-sales"><thead><tr><th>Khách hàng</th><th>Social</th><th>Film</th><th>Số lượng</th><th>Thành tiền</th><th>Ngày bán</th><th>Xoá</th></tr></thead><tbody>`;
-        if (sales.length===0) html+=`<tr><td colspan="7" class="text-center">🎈 Chưa có đơn bán film lẻ</td></tr>`;
+        if (sales.length===0) html+=`<tr><td colspan="7" class="text-center">🎈 Chưa có đơn bán film lẻ</td><tr>`;
         sales.forEach(sale => {
             const film = films.find(f => f.id === sale.filmId);
             const filmName = film ? film.name : "Film đã xóa";
+            const socialDisplay = sale.customerSocial ? escapeHtml(sale.customerSocial) : '—';
             html+=`<tr>
-                <td>${escapeHtml(sale.customerName || '—')}</td>
-                <td>${sale.customerSocial ? `<a href="${escapeHtml(sale.customerSocial)}" target="_blank"><i class="fab fa-instagram"></i> Link</a>` : '—'}</td>
+                <td><strong>${escapeHtml(sale.customerName || '—')}</strong></td>
+                <td>${socialDisplay}</td>
                 <td>${escapeHtml(filmName)}</td>
                 <td>${sale.quantity}</td>
                 <td>${formatVND(sale.revenue)}</td>
@@ -975,7 +900,7 @@
             document.getElementById('standaloneFilmSaleModal').style.visibility = 'visible';
         });
         document.querySelectorAll('.deleteFilmSaleBtn').forEach(btn=>btn.addEventListener('click',async()=>{
-            if(confirm("Xóa đơn bán film này?")) { await deleteFilmSale(btn.dataset.id); showToast("Đã xóa"); renderFilmSales(); }
+            if(await deleteFilmSale(btn.dataset.id)) showToast("Đã xóa đơn bán film");
         }));
     }
 
@@ -1082,18 +1007,29 @@
         document.getElementById('standalonePreviewTotal').innerHTML = formatVND(total);
     }
 
-    // Admin
+    // Admin settings - thêm nhiều font tiếng Việt
     function renderSettings() {
         let html = `<div class="user-info"><span><i class="fas fa-user-cog"></i> ${escapeHtml(currentUsername)} (Admin)</span><button id="logoutBtn" class="logout-btn">Đăng xuất</button></div>
             <div class="cartoon-card" style="padding:28px; margin-bottom:20px;"><h2><i class="fas fa-palette"></i> Cài đặt giao diện (toàn hệ thống)</h2>
             <div><label>🏷️ Tiêu đề trang:</label><input type="text" id="setTitle" value="${escapeHtml(appSettings.siteTitle)}">
             <label>📢 Header chính:</label><input type="text" id="setHeader" value="${escapeHtml(appSettings.headerText)}">
             <label>📌 Footer:</label><input type="text" id="setFooter" value="${escapeHtml(appSettings.footerText)}">
-            <label><i class="fas fa-font"></i> Font chữ toàn website:</label>
+            <label><i class="fas fa-font"></i> Font chữ toàn website (hỗ trợ tiếng Việt):</label>
             <select id="fontSelect">
-                <option value="'Comic Neue', 'Be Vietnam Pro', cursive" ${appSettings.fontFamily === "'Comic Neue', 'Be Vietnam Pro', cursive" ? 'selected' : ''}>Mặc định (Comic Neue)</option>
-                <option value="'Be Vietnam Pro', sans-serif" ${appSettings.fontFamily === "'Be Vietnam Pro', sans-serif" ? 'selected' : ''}>FZ Fragrant Việt Hóa (Be Vietnam Pro)</option>
-                <option value="'Quicksand', sans-serif" ${appSettings.fontFamily === "'Quicksand', sans-serif" ? 'selected' : ''}>Quicksand</option>
+                <option value="'Comic Neue', 'Be Vietnam Pro', cursive" ${appSettings.fontFamily === "'Comic Neue', 'Be Vietnam Pro', cursive" ? 'selected' : ''}>🎨 Mặc định (Comic Neue)</option>
+                <option value="'Be Vietnam Pro', sans-serif" ${appSettings.fontFamily === "'Be Vietnam Pro', sans-serif" ? 'selected' : ''}>🇻🇳 FZ Fragrant (Be Vietnam Pro)</option>
+                <option value="'Quicksand', sans-serif" ${appSettings.fontFamily === "'Quicksand', sans-serif" ? 'selected' : ''}>💨 Quicksand</option>
+                <option value="'FzFragrant', sans-serif" ${appSettings.fontFamily === "'FzFragrant', sans-serif" ? 'selected' : ''}>🌸 Fz Fragrant (font của bạn)</option>
+                <option value="'iCielCrocante', sans-serif" ${appSettings.fontFamily === "'iCielCrocante', sans-serif" ? 'selected' : ''}>🍃 iCiel Crocante (font mới)</option>
+                <option value="'Roboto', sans-serif" ${appSettings.fontFamily === "'Roboto', sans-serif" ? 'selected' : ''}>📱 Roboto</option>
+                <option value="'Open Sans', sans-serif" ${appSettings.fontFamily === "'Open Sans', sans-serif" ? 'selected' : ''}>📖 Open Sans</option>
+                <option value="'Montserrat', sans-serif" ${appSettings.fontFamily === "'Montserrat', sans-serif" ? 'selected' : ''}>✨ Montserrat</option>
+                <option value="'Nunito', sans-serif" ${appSettings.fontFamily === "'Nunito', sans-serif" ? 'selected' : ''}>🎈 Nunito</option>
+                <option value="'Lato', sans-serif" ${appSettings.fontFamily === "'Lato', sans-serif" ? 'selected' : ''}>📚 Lato</option>
+                <option value="'Inter', sans-serif" ${appSettings.fontFamily === "'Inter', sans-serif" ? 'selected' : ''}>💻 Inter</option>
+                <option value="'Playfair Display', serif" ${appSettings.fontFamily === "'Playfair Display', serif" ? 'selected' : ''}>🏛️ Playfair Display (serif)</option>
+                <option value="'Dancing Script', cursive" ${appSettings.fontFamily === "'Dancing Script', cursive" ? 'selected' : ''}>💃 Dancing Script (cursive)</option>
+                <option value="'Pacifico', cursive" ${appSettings.fontFamily === "'Pacifico', cursive" ? 'selected' : ''}>🏝️ Pacifico (cursive)</option>
             </select>
             <button id="saveSettingsBtn" class="cute-btn btn-success" style="margin-top:16px"><i class="fas fa-save"></i> Lưu cài đặt</button></div></div>
             <div class="cartoon-card" style="padding:28px;"><h2><i class="fas fa-key"></i> Đổi mật khẩu</h2>
